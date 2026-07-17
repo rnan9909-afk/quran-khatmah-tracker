@@ -1280,7 +1280,18 @@ function updatePlanStatus() {
     const today = new Date(getLocalDateString() + 'T00:00:00');
     const msPerDay = 86400000;
     let daysElapsed = Math.floor((today - start) / msPerDay) + 1;
-    if (isNaN(daysElapsed) || daysElapsed < 1) daysElapsed = 1;
+
+    // The khatmah hasn't started yet (start date is in the future)
+    if (daysElapsed < 1) {
+        const startPageInfo = quranPages[(startPage || 1) - 1] || quranPages[0];
+        if (elPlanExpectedPage) elPlanExpectedPage.innerText = startPage || 1;
+        if (elPlanExpectedSurah) elPlanExpectedSurah.innerText = startPageInfo ? startPageInfo.surah_name : '—';
+        elPlanStatusBadge.classList.remove('plan-behind', 'plan-ontrack', 'plan-ahead');
+        elPlanStatusBadge.classList.add('plan-ontrack');
+        if (elPlanStatusIcon) elPlanStatusIcon.innerText = '🗓️';
+        if (elPlanStatusText) elPlanStatusText.innerText = `ختمتك تبدأ ${formatArabicDate(startStr)}`;
+        return;
+    }
 
     // Expected page = pages that should be finished by end of today.
     const expectedRaw = (startPage - 1) + (daysElapsed * dailyGoal);
