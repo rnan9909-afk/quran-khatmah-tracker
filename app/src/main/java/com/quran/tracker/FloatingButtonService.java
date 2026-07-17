@@ -4,6 +4,8 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.app.usage.UsageEvents;
+import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
@@ -11,7 +13,9 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -39,6 +43,11 @@ public class FloatingButtonService extends Service {
     private TextView pageText;
     private WindowManager.LayoutParams layoutParams;
     private int targetPage = 0;
+    private String targetPackage = "";
+    private String lastForeground = "";
+
+    private Handler pollHandler;
+    private Runnable pollRunnable;
 
     @Override
     public void onCreate() {
@@ -51,10 +60,56 @@ public class FloatingButtonService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
             targetPage = intent.getIntExtra("page", 0);
+            targetPackage = intent.getStringExtra("pkg");
+            if (targetPackage == null) targetPackage = "";
         }
+        // Assume the Quran app is in front right after we launch it
+        lastForeground = targetPackage;
         updateButtonLabel();
+        startForegroundPolling();
         // If killed by the system, do not recreate automatically.
         return START_NOT_STICKY;
+    }
+
+    /** Show the button only while the selected Quran app is in the foreground. */
+    private void startForegroundPolling() {
+        if (pollHandler != null) return;
+        pollHandler = new Handler(Looper.getMainLooper());
+        pollRunnable = new Runnable() {
+            @Override
+            public void run() {
+                updateOverlayVisibility();
+                if (pollHandler != null) pollHandler.postDelayed(this, 900);
+            }
+        };
+        pollHandler.post(pollRunnable);
+    }
+
+    private void updateOverlayVisibility() {
+        if (floatingView == null) return;
+        String fg = getForegroundPackage();
+        if (fg != null && !fg.isEmpty()) lastForeground = fg;
+        boolean show = !targetPackage.isEmpty() && targetPackage.equals(lastForeground);
+        floatingView.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    private String getForegroundPackage() {
+        try {
+            UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+            long now = System.currentTimeMillis();
+            UsageEvents events = usm.queryEvents(now - 15000, now);
+            UsageEvents.Event event = new UsageEvents.Event();
+            String last = null;
+            while (events.hasNextEvent()) {
+                events.getNextEvent(event);
+                if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                    last = event.getPackageName();
+                }
+            }
+            return last;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private void updateButtonLabel() {
@@ -223,6 +278,10 @@ public class FloatingButtonService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (pollHandler != null) {
+            pollHandler.removeCallbacksAndMessages(null);
+            pollHandler = null;
+        }
         if (floatingView != null && windowManager != null) {
             try {
                 windowManager.removeView(floatingView);

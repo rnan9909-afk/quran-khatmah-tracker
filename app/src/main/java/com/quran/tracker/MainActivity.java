@@ -1,8 +1,10 @@
 package com.quran.tracker;
 
 import android.Manifest;
+import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Process;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -312,6 +314,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** Whether the app has "Usage access" (needed to detect the foreground app). */
+    private boolean hasUsageAccess() {
+        try {
+            AppOpsManager appOps = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
+            int mode;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                mode = appOps.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                        Process.myUid(), getPackageName());
+            } else {
+                mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                        Process.myUid(), getPackageName());
+            }
+            return mode == AppOpsManager.MODE_ALLOWED;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private void launchQuranWithFloatingButton(int page) {
         if (!Settings.canDrawOverlays(this)) {
             Toast.makeText(this,
@@ -327,15 +347,29 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        // Needed so the button only shows while the Quran app is in the foreground
+        if (!hasUsageAccess()) {
+            Toast.makeText(this,
+                    "فعّل «الوصول إلى بيانات الاستخدام» لتطبيق ختمتي، ليظهر الزر فوق تطبيق القرآن فقط.",
+                    Toast.LENGTH_LONG).show();
+            try {
+                startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+            } catch (Exception e) {
+                startActivity(new Intent(Settings.ACTION_SETTINGS));
+            }
+            return;
+        }
+
         Intent launchIntent = getPackageManager().getLaunchIntentForPackage(pkg);
         if (launchIntent == null) {
             Toast.makeText(this, "تعذّر فتح تطبيق القرآن.", Toast.LENGTH_LONG).show();
             return;
         }
 
-        // Show the floating return button (with the target page), then open the Quran app.
+        // Show the floating return button (with the target page + package), then open the Quran app.
         Intent svc = new Intent(this, FloatingButtonService.class);
         svc.putExtra("page", page);
+        svc.putExtra("pkg", pkg);
         ContextCompat.startForegroundService(this, svc);
 
         if (page > 0) {
