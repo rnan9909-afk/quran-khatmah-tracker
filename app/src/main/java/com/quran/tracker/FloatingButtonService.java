@@ -34,7 +34,9 @@ public class FloatingButtonService extends Service {
 
     private WindowManager windowManager;
     private View floatingView;
+    private TextView buttonView;
     private WindowManager.LayoutParams layoutParams;
+    private int targetPage = 0;
 
     @Override
     public void onCreate() {
@@ -45,8 +47,21 @@ public class FloatingButtonService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null) {
+            targetPage = intent.getIntExtra("page", 0);
+        }
+        updateButtonLabel();
         // If killed by the system, do not recreate automatically.
         return START_NOT_STICKY;
+    }
+
+    private void updateButtonLabel() {
+        if (buttonView == null) return;
+        if (targetPage > 0) {
+            buttonView.setText("ختمتي\nصفحة " + targetPage);
+        } else {
+            buttonView.setText("ختمتي");
+        }
     }
 
     private void startAsForeground() {
@@ -82,11 +97,13 @@ public class FloatingButtonService extends Service {
         windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
 
         TextView button = new TextView(this);
-        button.setText("ختمتي");
         button.setTextColor(Color.WHITE);
-        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         button.setTypeface(button.getTypeface(), android.graphics.Typeface.BOLD);
         button.setGravity(Gravity.CENTER);
+        button.setLineSpacing(dp(2), 1f);
+        buttonView = button;
+        updateButtonLabel();
 
         int padH = dp(20);
         int padV = dp(12);

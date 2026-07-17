@@ -521,7 +521,7 @@ function setupEventListeners() {
     if (elFloatingQuranBtn) {
         elFloatingQuranBtn.addEventListener('click', () => {
             if (typeof Android !== 'undefined' && Android.launchQuranWithFloatingButton) {
-                Android.launchQuranWithFloatingButton();
+                Android.launchQuranWithFloatingButton(currentPage);
             } else {
                 showAndroidToast("هذه الميزة متاحة داخل التطبيق فقط");
             }

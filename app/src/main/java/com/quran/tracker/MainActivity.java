@@ -274,8 +274,8 @@ public class MainActivity extends AppCompatActivity {
          * it. If the overlay permission is missing it is requested first.
          */
         @JavascriptInterface
-        public void launchQuranWithFloatingButton() {
-            runOnUiThread(MainActivity.this::launchQuranWithFloatingButton);
+        public void launchQuranWithFloatingButton(int page) {
+            runOnUiThread(() -> launchQuranWithFloatingButton(page));
         }
     }
 
@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void launchQuranWithFloatingButton() {
+    private void launchQuranWithFloatingButton(int page) {
         if (!Settings.canDrawOverlays(this)) {
             Toast.makeText(this,
                     "فعّل صلاحية «العرض فوق التطبيقات» لإظهار زر العودة.",
@@ -333,8 +333,15 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // Show the floating return button, then open the Quran app on top of it.
-        ContextCompat.startForegroundService(this, new Intent(this, FloatingButtonService.class));
+        // Show the floating return button (with the target page), then open the Quran app.
+        Intent svc = new Intent(this, FloatingButtonService.class);
+        svc.putExtra("page", page);
+        ContextCompat.startForegroundService(this, svc);
+
+        if (page > 0) {
+            Toast.makeText(this, "افتح الصفحة " + page + " في تطبيق القرآن", Toast.LENGTH_LONG).show();
+        }
+
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(launchIntent);
     }
