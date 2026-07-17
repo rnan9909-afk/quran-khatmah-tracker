@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ختمتي - متابعة الورد القرآني</title>
+    <!-- Tajawal Arabic Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- App Container -->
+    <div class="app-container">
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-pattern"></div>
+            <div class="header-content">
+                <img class="header-logo-img" src="logo.png" alt="شعار ختمتي">
+                <div class="header-text">
+                    <h1>تطبيق ختمتي</h1>
+                    <p>متابعة الورد القرآني</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="app-content">
+
+            <!-- Tab 1: Home (الرئيسية) -->
+            <section id="tab-home" class="tab-pane active">
+                
+                <!-- Active Khatmah Selector Row (Curated Horizontal Card layout) -->
+                <div class="khatmahs-grid-container">
+                    <div class="section-header-row">
+                        <span class="section-title-label">الختمات النشطة</span>
+                        <button class="btn btn-secondary btn-sm ripple" id="btn-add-khatmah-trigger">
+                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3.5" style="display:inline-block; vertical-align:middle; margin-left: 4px;">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            <span>ختمة جديدة</span>
+                        </button>
+                    </div>
+                    <div class="khatmahs-grid" id="khatmahs-active-grid">
+                        <!-- Dynamic active Khatmahs cards will load here -->
+                    </div>
+                </div>
+
+                <!-- Streak & Level Badge -->
+                <div class="level-streak-badge-container">
+                    <div class="level-badge" id="user-level-badge">
+                        <span class="badge-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                            </svg>
+                        </span>
+                        <span class="badge-text" id="user-level-name">قارئ مبتدئ</span>
+                    </div>
+                    <div class="streak-badge" id="user-streak-badge">
+                        <span class="streak-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+                            </svg>
+                        </span>
+                        <span class="streak-text" id="user-streak-val">0 يوم متواصل</span>
+                    </div>
+                </div>
+
+                <!-- Current Page Card -->
+                <div class="card current-page-card">
+                    <div class="card-main-row" style="margin-bottom: 15px;">
+                        <div class="card-balance-info">
+                            <div class="card-title">آخر ما وصلت إليه</div>
+                            <div class="page-number-display-interactive">
+                                <button class="btn-page-step ripple" id="btn-page-dec" aria-label="الصفحة السابقة">−</button>
+                                <div class="page-number-text">
+                                    <span class="lbl">الصفحة</span>
+                                    <span class="num" id="current-page-val">1</span>
+                                </div>
+                                <button class="btn-page-step ripple" id="btn-page-inc" aria-label="الصفحة التالية">＋</button>
+                            </div>
+                        </div>
+                        <button class="btn-card-action ripple" id="btn-card-update" aria-label="تحديث الصفحة">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Quick Register (moved above the daily goal, modern glass design) -->
+                    <div class="quick-register">
+                        <div class="quick-register-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                            </svg>
+                            <span>تسجيل سريع</span>
+                        </div>
+                        <div class="quick-register-grid">
+                            <button class="quick-reg-btn ripple" data-inc="1"><span class="qr-num">+1</span><span class="qr-unit">صفحة</span></button>
+                            <button class="quick-reg-btn ripple" data-inc="5"><span class="qr-num">+5</span><span class="qr-unit">صفحات</span></button>
+                            <button class="quick-reg-btn ripple" data-inc="10"><span class="qr-num">+10</span><span class="qr-unit">صفحات</span></button>
+                            <button class="quick-reg-btn ripple" data-inc="20"><span class="qr-num">+20</span><span class="qr-unit">صفحة</span></button>
+                        </div>
+                    </div>
+
+                    <!-- Daily & Weekly Goals — glass boxes -->
+                    <div class="goals-glass-wrap">
+                        <!-- Daily -->
+                        <div class="goal-glass-box">
+                            <div class="goal-glass-head">
+                                <span class="goal-glass-title">الهدف اليومي</span>
+                                <div class="goal-glass-actions">
+                                    <button class="goal-glass-icon" id="btn-edit-goal-trigger" aria-label="تعديل الهدف">
+                                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                            <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z" />
+                                        </svg>
+                                    </button>
+                                    <button class="goal-glass-icon" id="btn-reset-today" aria-label="تصفير إنجاز اليوم">
+                                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="goal-glass-value">
+                                <span class="gg-num" id="blue-card-goal-val">10</span>
+                                <span class="gg-unit">صفحة</span>
+                            </div>
+                            <div class="goal-glass-ratio" id="blue-card-progress-ratio">0 / 10 اليوم</div>
+                            <div class="goal-glass-bar-wrap">
+                                <div class="goal-glass-bar" id="blue-card-progress-bar"></div>
+                            </div>
+                        </div>
+
+                        <!-- Weekly -->
+                        <div class="goal-glass-box">
+                            <div class="goal-glass-head">
+                                <span class="goal-glass-title">الهدف الأسبوعي</span>
+                            </div>
+                            <div class="goal-glass-value">
+                                <span class="gg-num" id="weekly-card-goal-val">70</span>
+                                <span class="gg-unit">صفحة</span>
+                            </div>
+                            <div class="goal-glass-ratio" id="weekly-card-progress-ratio">0 / 70 هذا الأسبوع</div>
+                            <div class="goal-glass-bar-wrap">
+                                <div class="goal-glass-bar" id="weekly-card-progress-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page-details-grid">
+                        <div class="detail-item">
+                            <span class="detail-lbl">السورة</span>
+                            <button class="picker-field" id="surah-picker">
+                                <span class="picker-field-text" id="surah-picker-text">—</span>
+                                <svg class="picker-chevron" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-lbl">الآية في الصفحة</span>
+                            <button class="picker-field" id="ayah-picker">
+                                <span class="picker-field-text" id="ayah-picker-text">1</span>
+                                <svg class="picker-chevron" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-lbl">الجزء</span>
+                            <span class="detail-val" id="juz-val">1</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-lbl">الحزب</span>
+                            <span class="detail-val" id="hizb-val">1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Status Card: where you should be now -->
+                <div class="card plan-status-card" id="plan-status-card">
+                    <div class="plan-status-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <polyline points="12 7 12 12 15 14"></polyline>
+                        </svg>
+                        <span>حسب خطتك، يُفترض أن تكون الآن عند</span>
+                    </div>
+                    <div class="plan-status-target">
+                        <div class="plan-target-block">
+                            <span class="pt-lbl">الصفحة</span>
+                            <span class="pt-num" id="plan-expected-page">—</span>
+                        </div>
+                        <div class="plan-target-divider"></div>
+                        <div class="plan-target-block">
+                            <span class="pt-lbl">السورة</span>
+                            <span class="pt-surah" id="plan-expected-surah">—</span>
+                        </div>
+                    </div>
+                    <div class="plan-status-badge" id="plan-status-badge">
+                        <span id="plan-status-icon" class="plan-status-icon">•</span>
+                        <span id="plan-status-text">—</span>
+                    </div>
+                </div>
+
+                <!-- Weekly Makeup Card -->
+                <div class="card makeup-card">
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <span class="setting-title">
+                                <span style="margin-left:4px;">🔁</span>تعويض يوم فائت
+                            </span>
+                            <span class="setting-desc" id="makeup-desc">متاح مرة واحدة كل أسبوع</span>
+                        </div>
+                        <button class="btn btn-primary btn-sm ripple" id="btn-use-makeup">تعويض</button>
+                    </div>
+                </div>
+
+                <!-- Main Action Buttons -->
+                <div class="action-buttons-group">
+                    <button class="btn btn-gold btn-large ripple" id="btn-finish-khatmah" style="display: none;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-left: 8px;">
+                            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                            <path d="M4 22h16"></path>
+                            <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path>
+                            <path d="M12 2a6 6 0 0 0-6 6v5a6 6 0 0 0 12 0V8a6 6 0 0 0-6-6z"></path>
+                        </svg>
+                        <span>ختم الختمة الحالية وإضافتها للسجل</span>
+                    </button>
+                </div>
+
+                <!-- Current Khatmah Stats Card -->
+                <div class="card current-khatmah-stats-card">
+                    <div class="card-title">إحصائيات الختمة الحالية</div>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <span class="stat-icon">
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                </svg>
+                            </span>
+                            <div class="stat-number" id="stat-surahs-val">0</div>
+                            <div class="stat-label">سوراً قُرِأت</div>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-icon">
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                </svg>
+                            </span>
+                            <div class="stat-number" id="stat-ayahs-val">0</div>
+                            <div class="stat-label">آيات قُرِأت</div>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-icon">
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                </svg>
+                            </span>
+                            <div class="stat-number" id="stat-letters-val">0</div>
+                            <div class="stat-label">حروفاً قُرِأت</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completion Progress Card -->
+                <div class="card progress-card">
+                    <div class="progress-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span class="card-title" style="margin-bottom: 0;">تقدم الختمة الحالية</span>
+                        <span class="progress-percentage-text" id="completion-percentage-val" style="font-size: 0.85rem; font-weight: 700; color: var(--accent-color);">0.00%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar" id="completion-progress-bar"></div>
+                        </div>
+                    </div>
+                    <div class="stats-mini-grid">
+                        <div class="mini-stat">
+                            <span class="lbl">المقروء</span>
+                            <span class="val" id="read-pages-val">0</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="lbl">المتبقي</span>
+                            <span class="val" id="remaining-pages-val">604</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 30-Juz Progress Card -->
+                <div class="card juz-card">
+                    <div class="progress-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                        <span class="card-title" style="margin-bottom:0;">تقدم الأجزاء</span>
+                        <span class="juz-count-text" id="juz-count-text">0 / 30 جزء</span>
+                    </div>
+                    <div class="juz-grid" id="juz-grid"><!-- 30 segments rendered here --></div>
+                </div>
+            </section>
+
+            <!-- Tab 2: Calendar (التقويم) -->
+            <section id="tab-calendar" class="tab-pane">
+                <div class="tab-title-bar">
+                    <h2>
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-left:8px;">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>التقويم القرآني اليومي</span>
+                    </h2>
+                    <p class="tab-subtitle">متابعة أيام القراءة والانقطاع وحجم وردك اليومي</p>
+                </div>
+
+                <!-- Calendar Card -->
+                <div class="card calendar-card">
+                    <div class="calendar-header-row">
+                        <button class="btn-cal-nav" id="btn-cal-prev" aria-label="الشهر السابق">◀</button>
+                        <span class="calendar-month-label" id="calendar-month-label">يونيو 2026</span>
+                        <button class="btn-cal-nav" id="btn-cal-next" aria-label="الشهر التالي">▶</button>
+                    </div>
+                    
+                    <div class="calendar-weekdays">
+                        <div>أحد</div>
+                        <div>إثن</div>
+                        <div>ثلاث</div>
+                        <div>أربع</div>
+                        <div>خميس</div>
+                        <div>جمعة</div>
+                        <div>سبت</div>
+                    </div>
+                    
+                    <div class="calendar-days-grid" id="calendar-days-grid">
+                        <!-- Dynamic calendar days will load here -->
+                    </div>
+                    
+                    <div class="calendar-legend" style="flex-wrap: wrap; gap: 10px;">
+                        <div class="legend-item">
+                            <span class="legend-dot read-green"></span>
+                            <span>حقق الهدف اليومي</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot read-yellow"></span>
+                            <span>قرأ أقل من الهدف</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot read-red"></span>
+                            <span>انقطاع / لم يقرأ</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot future-grey"></span>
+                            <span>مستقبل</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Streak and Stats Card -->
+                <div class="card streak-summary-card">
+                    <div class="stats-mini-grid" style="text-align: center;">
+                        <div class="mini-stat" style="flex: 1;">
+                            <span class="lbl">السلسلة الحالية</span>
+                            <span class="val text-gold" id="cal-current-streak">0 يوم</span>
+                        </div>
+                        <div class="mini-stat" style="flex: 1; border-right: 1px solid var(--border-color); border-left: 1px solid var(--border-color);">
+                            <span class="lbl">أطول سلسلة</span>
+                            <span class="val" id="cal-max-streak">0 يوم</span>
+                        </div>
+                        <div class="mini-stat" style="flex: 1;">
+                            <span class="lbl">إجمالي أيام القراءة</span>
+                            <span class="val" id="cal-total-days">0 يوم</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Report Card -->
+                <div class="card weekly-report-card">
+                    <div class="card-title">التقرير الأسبوعي</div>
+                    <div class="report-grid">
+                        <div class="report-box">
+                            <span class="report-val" id="report-pages">0</span>
+                            <span class="report-lbl">صفحة هذا الأسبوع</span>
+                            <span class="report-compare" id="report-compare">—</span>
+                        </div>
+                        <div class="report-box">
+                            <span class="report-val" id="report-green-days">0</span>
+                            <span class="report-lbl">أيام حققت الهدف</span>
+                        </div>
+                        <div class="report-box">
+                            <span class="report-val" id="report-longest">0</span>
+                            <span class="report-lbl">أطول تتابع (يوم)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Chart Card -->
+                <div class="card monthly-chart-card">
+                    <div class="progress-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                        <span class="card-title" style="margin-bottom:0;">قراءتك اليومية خلال الشهر</span>
+                        <span class="chart-month-lbl" id="chart-month-lbl">—</span>
+                    </div>
+                    <div class="month-chart" id="month-chart"><!-- daily bars --></div>
+                </div>
+            </section>
+
+            <!-- Tab 3: Achievements (الإنجازات) -->
+            <section id="tab-achievements" class="tab-pane">
+                <div class="tab-title-bar">
+                    <h2>
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-left:8px;">
+                            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                            <path d="M4 22h16"></path>
+                            <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path>
+                            <path d="M12 2a6 6 0 0 0-6 6v5a6 6 0 0 0 12 0V8a6 6 0 0 0-6-6z"></path>
+                        </svg>
+                        <span>سجل الإنجازات والختمات</span>
+                    </h2>
+                </div>
+
+                <!-- Achievement Badges -->
+                <div class="card badges-card">
+                    <div class="progress-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                        <span class="card-title" style="margin-bottom:0;">أوسمة الإنجاز</span>
+                        <span class="badges-count" id="badges-count">0 / 0</span>
+                    </div>
+                    <div class="badges-grid" id="badges-grid"><!-- badges rendered here --></div>
+                </div>
+
+                <!-- Records Dashboard -->
+                <div class="records-dashboard">
+                    <div class="record-card highlight">
+                        <div class="record-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                            </svg>
+                        </div>
+                        <div class="record-info">
+                            <div class="val" id="rec-fastest-val">لا يوجد ختمات بعد</div>
+                            <div class="lbl">أسرع ختمة حققتها</div>
+                        </div>
+                    </div>
+                    
+                    <div class="record-card">
+                        <div class="record-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                        <div class="record-info">
+                            <div class="val" id="rec-total-khatmahs">0 ختمة</div>
+                            <div class="lbl">إجمالي الختمات المنجزة</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Previous Khatmahs List -->
+                <div class="khatmahs-section-title">سجل الختمات السابقة</div>
+                <div class="khatmahs-list" id="khatmahs-list">
+                    <div class="empty-khatmahs-msg" id="empty-khatmahs-msg">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 6px auto; display: block;">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                        </span>
+                        <p>لم تقم بإتمام أي ختمة بعد. استمر بالقراءة لتسجيل ختمتك الأولى هنا!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 4: Settings (التنبيهات والبيانات) -->
+            <section id="tab-settings" class="tab-pane">
+                <div class="tab-title-bar">
+                    <h2>
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-left:8px;">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        <span>الإحصائيات وإعدادات الختمات</span>
+                    </h2>
+                </div>
+
+                <!-- Custom Statistics Card -->
+                <div class="card main-stats-dashboard">
+                    <div class="card-title">موعد الختمة القادم</div>
+                    <div class="estimation-content">
+                        <div class="estimation-main" id="estimated-date-val">غير محدد</div>
+                        <div class="average-badge">
+                            متوسط القراءة اليومية: <span id="daily-avg-val">0</span> صفحة / يوم
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Notification Settings -->
+                <div class="card settings-card">
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <span class="setting-title">تفعيل التذكير اليومي</span>
+                            <span class="setting-desc">تنبيهك لقراءة الورد اليومي بالموعد المحدد</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="notification-switch">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-divider"></div>
+
+                    <div class="settings-row-vertical" id="time-picker-container">
+                        <span class="setting-title">وقت التنبيه اليومي</span>
+                        <div class="time-picker-selectors">
+                            <div class="time-field">
+                                <label for="time-hour">الساعة</label>
+                                <select id="time-hour">
+                                    <option value="0">12 AM (منتصف الليل)</option>
+                                    <option value="1">1 AM</option>
+                                    <option value="2">2 AM</option>
+                                    <option value="3">3 AM</option>
+                                    <option value="4">4 AM</option>
+                                    <option value="5">5 AM</option>
+                                    <option value="6">6 AM</option>
+                                    <option value="7">7 AM</option>
+                                    <option value="8">8 AM</option>
+                                    <option value="9">9 AM</option>
+                                    <option value="10">10 AM</option>
+                                    <option value="11">11 AM</option>
+                                    <option value="12">12 PM (الظهر)</option>
+                                    <option value="13">1 PM</option>
+                                    <option value="14">2 PM</option>
+                                    <option value="15">3 PM</option>
+                                    <option value="16">4 PM</option>
+                                    <option value="17">5 PM</option>
+                                    <option value="18">6 PM</option>
+                                    <option value="19">7 PM</option>
+                                    <option value="20" selected>8 PM (العشاء)</option>
+                                    <option value="21">9 PM</option>
+                                    <option value="22">10 PM</option>
+                                    <option value="23">11 PM</option>
+                                </select>
+                            </div>
+                            <div class="time-field">
+                                <label for="time-minute">الدقيقة</label>
+                                <select id="time-minute">
+                                    <option value="0" selected>00</option>
+                                    <option value="15">15</option>
+                                    <option value="30">30</option>
+                                    <option value="45">45</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary ripple" id="btn-save-settings" style="margin-top: 15px; width: 100%;">
+                        حفظ إعدادات التنبيه
+                    </button>
+                </div>
+
+                <!-- Floating Quran Button Settings (only shown if a Quran app is installed) -->
+                <div class="card settings-card" id="floating-btn-card">
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <span class="setting-title">زر القرآن العائم</span>
+                            <span class="setting-desc">يظهر زر عائم داخل ختمتي لفتح تطبيق القرآن، مع زر عودة عائم يعيدك فوراً.</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="floating-btn-switch">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-divider"></div>
+
+                    <div class="settings-row-vertical">
+                        <span class="setting-title">التطبيق الذي سيُفتح</span>
+                        <span class="setting-desc">اختر تطبيق القرآن (أو أي تطبيق) الذي تريد الانتقال إليه عند الضغط على الزر العائم.</span>
+                        <select id="quran-app-select" class="app-select">
+                            <option value="">— اختر تطبيقاً —</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-divider"></div>
+
+                    <div class="floating-howto">
+                        <span class="setting-title">كيف يعمل؟</span>
+                        <ol class="howto-list">
+                            <li>فعّل الميزة من هنا (تظهر إن وُجد تطبيق قرآن).</li>
+                            <li>اضغط زر القرآن العائم داخل ختمتي.</li>
+                            <li>أول مرة يطلب التطبيق إذن «العرض فوق التطبيقات».</li>
+                            <li>يُفتح تطبيق القرآن ويظهر فوقه زر ختمتي العائم.</li>
+                            <li>اضغط زر ختمتي لتعود فوراً إلى تطبيقك.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Active Khatmah Management Card (Delete Active Khatmah) -->
+                <div class="card settings-card">
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <span class="setting-title" style="color: #ef4444;">حذف الختمة النشطة الحالية</span>
+                            <span class="setting-desc">سيتم مسح تقدم هذه الختمة تماماً ولن يمكنك استرجاعه.</span>
+                        </div>
+                        <button class="btn btn-secondary ripple btn-sm" id="btn-delete-active-khatmah" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2); background-color: rgba(239, 68, 68, 0.05); font-weight: 700;">حذف</button>
+                    </div>
+                </div>
+
+                <!-- Local File Export/Import Card (Moved from Sync Tab) -->
+                <div class="card backup-card">
+                    <div class="card-title">تصدير واستيراد البيانات يدوياً</div>
+                    <p class="backup-desc">تساعدك هذه الميزة على نقل تقدمك وأهدافك عند تغيير الهاتف بالكامل وبدون إنترنت.</p>
+                    
+                    <div class="backup-actions">
+                        <button class="btn btn-secondary ripple" id="btn-export-data" style="flex: 1;">
+                            📥 تصدير البيانات (JSON)
+                        </button>
+                        <button class="btn btn-secondary ripple" id="btn-import-data-trigger" style="flex: 1;">
+                            📤 استيراد البيانات (JSON)
+                        </button>
+                    </div>
+                    
+                    <!-- Hidden File Input for Import -->
+                    <input type="file" id="file-import-input" accept=".json" style="display: none;">
+                </div>
+
+                <div class="card about-card">
+                    <div class="about-logo">
+                        <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-color); margin: 0 auto 6px auto;">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                    </div>
+                    <h3>تطبيق ختمتي</h3>
+                    <p>نسخة 3.7 — إصلاح حفظ تاريخ بداية الختمة ✅</p>
+                    <p class="about-desc">مطور لمرافقتك في المداومة على تلاوة كتاب الله الكريم وتوثيق إنجازات ختماتك المباركة.</p>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation Bar (5 Items) -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-tab="tab-home">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span>الرئيسية</span>
+            </button>
+            <button class="nav-item" data-tab="tab-calendar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span>التقويم</span>
+            </button>
+            <button class="nav-item" data-tab="tab-achievements">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                    <path d="M4 22h16"/>
+                    <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"/>
+                    <path d="M12 2a6 6 0 0 0-6 6v5a6 6 0 0 0 12 0V8a6 6 0 0 0-6-6Z"/>
+                </svg>
+                <span>الختمات</span>
+            </button>
+            <button class="nav-item" data-tab="tab-settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span>الإعدادات</span>
+            </button>
+        </nav>
+
+        <!-- Floating button to open the Quran app (shown only when the feature is enabled) -->
+        <button id="floating-quran-btn" class="floating-quran-btn" style="display: none;" aria-label="فتح تطبيق القرآن">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>القرآن</span>
+        </button>
+
+        <!-- Modal 1: Update Page Number -->
+        <div class="modal-overlay" id="modal-page">
+            <div class="modal-card">
+                <div class="modal-title">تسجيل آخر صفحة وصلت إليها</div>
+                <div class="modal-body">
+                    <p class="modal-desc">أدخل رقم الصفحة الأخيرة التي قرأتها (من 1 إلى 604):</p>
+                    <div class="input-container">
+                        <input type="number" id="input-page-number" min="1" max="604" placeholder="مثال: 250" pattern="\d*">
+                        <span class="input-suffix">صفحة</span>
+                    </div>
+                    <div class="error-msg" id="page-error-msg">رقم الصفحة يجب أن يكون بين 1 و 604</div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="btn-close-page-modal">إلغاء</button>
+                    <button class="btn btn-primary" id="btn-save-page">حفظ وتحديث</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal 2: Change Daily Goal -->
+        <div class="modal-overlay" id="modal-goal">
+            <div class="modal-card">
+                <div class="modal-title">تعديل الورد اليومي</div>
+                <div class="modal-body">
+                    <p class="modal-desc">حدد عدد الصفحات المستهدف قراءتها يومياً:</p>
+                    <div class="input-container">
+                        <input type="number" id="input-goal-number" min="1" max="604" placeholder="مثال: 10" pattern="\d*">
+                        <span class="input-suffix">صفحة / يوم</span>
+                    </div>
+                    <div class="error-msg" id="goal-error-msg">الهدف يجب أن يكون صفحة واحدة على الأقل</div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="btn-close-goal-modal">إلغاء</button>
+                    <button class="btn btn-primary" id="btn-save-goal">حفظ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal 3: Add New Khatmah -->
+        <div class="modal-overlay" id="modal-add-khatmah">
+            <div class="modal-card">
+                <div class="modal-title">إنشاء ختمة جديدة</div>
+                <div class="modal-body">
+                    <p class="modal-desc">أدخل اسماً للختمة الجديدة وحدد هدفك اليومي:</p>
+                    <div class="input-container" style="margin-bottom: 12px;">
+                        <input type="text" id="input-khatmah-name" placeholder="مثال: ختمة رمضان" style="text-align: right;">
+                    </div>
+                    <div class="input-container" style="margin-bottom: 12px;">
+                        <input type="number" id="input-khatmah-goal" min="1" max="604" placeholder="الهدف اليومي (صفحات)" pattern="\d*">
+                        <span class="input-suffix">صفحة / يوم</span>
+                    </div>
+                    <label for="input-khatmah-start-date" style="display:block; font-size:0.72rem; color:var(--text-muted); margin-bottom:6px; font-weight:700; text-align:right;">تاريخ بداية الختمة:</label>
+                    <div class="input-container">
+                        <input type="date" id="input-khatmah-start-date" style="text-align:right;">
+                    </div>
+                    <div class="error-msg" id="khatmah-add-error">يرجى إدخال اسم الختمة وتحديد هدف صحيح</div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="btn-close-khatmah-modal">إلغاء</button>
+                    <button class="btn btn-primary" id="btn-save-new-khatmah">إنشاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal 4: Khatmah Individual Settings -->
+        <div class="modal-overlay" id="modal-khatmah-settings">
+            <div class="modal-card">
+                <div class="modal-title">إعدادات الختمة</div>
+                <div class="modal-body">
+                    <div style="margin-bottom: 15px;">
+                        <label for="edit-khatmah-name" style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 700; text-align: right;">اسم الختمة:</label>
+                        <div class="input-container">
+                            <input type="text" id="edit-khatmah-name" placeholder="مثال: ختمة رمضان" style="text-align: right; font-weight: 700;">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label for="edit-khatmah-goal" style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 700; text-align: right;">الورد اليومي:</label>
+                        <div class="input-container">
+                            <input type="number" id="edit-khatmah-goal" min="1" max="604" placeholder="مثال: 10" pattern="\d*">
+                            <span class="input-suffix">صفحة / يوم</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label for="edit-khatmah-start-date" style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 700; text-align: right;">تاريخ بداية الختمة:</label>
+                        <div class="input-container">
+                            <input type="date" id="edit-khatmah-start-date" style="text-align: right; font-weight: 700;">
+                        </div>
+                    </div>
+
+                    <div class="danger-zone-khatmah" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+                        <button class="btn btn-secondary ripple" id="btn-reset-khatmah-progress" style="color: var(--gold-accent); border-color: rgba(212, 175, 55, 0.2); background-color: rgba(212, 175, 55, 0.05); font-size: 0.8rem; width: 100%; padding: 10px;">
+                            🔄 إعادة ضبط الختمة (البدء من صفحة 1)
+                        </button>
+                        <button class="btn btn-secondary ripple" id="btn-delete-selected-khatmah" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2); background-color: rgba(239, 68, 68, 0.05); font-size: 0.8rem; width: 100%; padding: 10px;">
+                            🗑️ حذف الختمة نهائياً
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button class="btn btn-secondary" id="btn-close-khatmah-settings-modal">إلغاء</button>
+                    <button class="btn btn-primary" id="btn-save-khatmah-settings">حفظ التغييرات</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal 5: Custom Alert/Confirm Dialog -->
+        <div class="modal-overlay" id="modal-custom-dialog">
+            <div class="modal-card" style="max-width: 340px; text-align: center;">
+                <div class="modal-title" id="custom-dialog-title" style="margin-bottom: 12px; font-weight: 800;">تنبيه</div>
+                <div class="modal-body" style="padding: 5px 0 10px 0;">
+                    <p class="modal-desc" id="custom-dialog-message" style="font-size: 0.85rem; line-height: 1.6; color: var(--text-color); margin-bottom: 0; text-align: center; font-weight: 600;"></p>
+                </div>
+                <div class="modal-actions" style="margin-top: 15px; display: flex; gap: 8px;">
+                    <button class="btn btn-secondary" id="btn-custom-dialog-cancel" style="padding: 10px;">إلغاء</button>
+                    <button class="btn btn-primary" id="btn-custom-dialog-ok" style="padding: 10px;">موافق</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Themed Surah/Ayah Picker (bottom sheet) -->
+        <div class="modal-overlay picker-overlay" id="modal-picker">
+            <div class="modal-card picker-card">
+                <div class="picker-header">
+                    <span class="modal-title" id="picker-title" style="margin-bottom:0;">اختر</span>
+                    <button class="picker-close-x" id="btn-close-picker" aria-label="إغلاق">✕</button>
+                </div>
+                <div class="picker-list" id="picker-list"><!-- options rendered here --></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Application JavaScript -->
+    <script src="quran_pages.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

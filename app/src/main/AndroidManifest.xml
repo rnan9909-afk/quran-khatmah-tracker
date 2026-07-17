@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Floating ("draw over other apps") button feature -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <!-- Package visibility (Android 11+) so we can detect & launch known Quran apps -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <package android:name="com.quran.labs.androidquran" />
+        <package android:name="com.pakdata.QuranMajeed" />
+        <package android:name="com.guidedways.iQuran" />
+        <package android:name="com.andi.alquran" />
+        <package android:name="com.andi.alquran.id" />
+        <package android:name="com.quranreading.holyquran" />
+        <package android:name="com.tos.quran" />
+        <package android:name="com.equ.quran" />
+        <package android:name="com.greentech.quran" />
+        <package android:name="com.muslim.quran.alquran.qurankareem" />
+    </queries>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/logo"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.QuranTracker">
+
+        <!-- Splash Screen Activity -->
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.QuranTracker.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Main Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+
+        <!-- Floating return button overlay shown on top of the Quran app -->
+        <service
+            android:name=".FloatingButtonService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Floating return-to-app button shown over a Quran app the user opened from within this app." />
+        </service>
+
+        <!-- Home-screen widget showing khatmah progress -->
+        <receiver
+            android:name=".QuranProgressWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_progress_info" />
+        </receiver>
+
+        <!-- Broadcast Receiver for Daily Notification Reminder -->
+        <receiver
+            android:name=".NotificationReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.quran.tracker.ACTION_SHOW_NOTIFICATION" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>
