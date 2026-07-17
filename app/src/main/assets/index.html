@@ -561,6 +561,30 @@
                     </button>
                 </div>
 
+                <!-- End-date Plan Settings -->
+                <div class="card settings-card">
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <span class="setting-title">التخطيط بتاريخ النهاية</span>
+                            <span class="setting-desc">فعّلها لتحديد تاريخ تريد ختم المصحف فيه، فيحسب التطبيق وردك اليومي تلقائياً ويعدّله كلما تقدّمت أو تأخّرت. عند الإطفاء يبقى الورد اليومي الذي تحدده أنت.</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="endplan-switch">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-divider"></div>
+
+                    <div class="settings-row-vertical" id="endplan-date-container">
+                        <span class="setting-title">تاريخ ختم المصحف المستهدف</span>
+                        <div class="input-container">
+                            <input type="date" id="endplan-date" style="text-align:center;">
+                        </div>
+                        <span class="setting-desc" id="endplan-computed">الورد اليومي المحسوب: —</span>
+                    </div>
+                </div>
+
                 <!-- Floating Quran Button Settings (only shown if a Quran app is installed) -->
                 <div class="card settings-card" id="floating-btn-card">
                     <div class="settings-row">
@@ -635,7 +659,7 @@
                         </svg>
                     </div>
                     <h3>تطبيق ختمتي</h3>
-                    <p>نسخة 4.1 — تصميم جديد للزر العائم ✅</p>
+                    <p>نسخة 4.2 — التخطيط بتاريخ النهاية ✅</p>
                     <p class="about-desc">مطور لمرافقتك في المداومة على تلاوة كتاب الله الكريم وتوثيق إنجازات ختماتك المباركة.</p>
                 </div>
             </section>
