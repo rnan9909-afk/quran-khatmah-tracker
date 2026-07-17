@@ -47,10 +47,6 @@ let makeupDays = [];        // ['YYYY-MM-DD', ...] days marked as compensated
 let lastMakeupWeek = '';    // Sunday date string of the week the makeup was last used
 let makeupAppliedDate = '';  // the day the makeup was performed (its goal is doubled)
 
-// End-date plan: auto-compute the daily goal from a target finish date
-let endPlanEnabled = false;
-let endPlanDate = '';       // 'YYYY-MM-DD' target date to finish the mushaf
-
 // DOM Elements
 const elCurrentPageVal = document.getElementById('current-page-val');
 const elJuzVal = document.getElementById('juz-val');
@@ -107,12 +103,6 @@ const elTimeMinute = document.getElementById('time-minute');
 const elTimePickerContainer = document.getElementById('time-picker-container');
 const elBtnDeleteActiveKhatmah = document.getElementById('btn-delete-active-khatmah');
 
-// End-date plan elements
-const elEndPlanSwitch = document.getElementById('endplan-switch');
-const elEndPlanDate = document.getElementById('endplan-date');
-const elEndPlanDateContainer = document.getElementById('endplan-date-container');
-const elEndPlanComputed = document.getElementById('endplan-computed');
-
 // Floating Quran Button Elements
 const elFloatingBtnCard = document.getElementById('floating-btn-card');
 const elFloatingBtnSwitch = document.getElementById('floating-btn-switch');
@@ -148,7 +138,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupEventListeners();
     initNotificationSettings();
     initFloatingButtonSettings();
-    initEndPlanSettings();
     
     // Process streaks and render UI
     refreshCalculations();
@@ -195,8 +184,6 @@ function loadStateFromStorage() {
     }
     lastMakeupWeek = localStorage.getItem('quran_last_makeup_week') || '';
     makeupAppliedDate = localStorage.getItem('quran_makeup_applied_date') || '';
-    endPlanEnabled = localStorage.getItem('quran_endplan_enabled') === 'true';
-    endPlanDate = localStorage.getItem('quran_endplan_date') || '';
 
     // Load active Khatmahs list
     try {
@@ -362,8 +349,6 @@ function saveStateToStorage() {
     localStorage.setItem('quran_makeup_days', JSON.stringify(makeupDays));
     localStorage.setItem('quran_last_makeup_week', lastMakeupWeek);
     localStorage.setItem('quran_makeup_applied_date', makeupAppliedDate);
-    localStorage.setItem('quran_endplan_enabled', endPlanEnabled ? 'true' : 'false');
-    localStorage.setItem('quran_endplan_date', endPlanDate);
 
     // Backward compatibility for native code
     localStorage.setItem('quran_current_page', currentPage.toString());
@@ -509,32 +494,6 @@ function setupEventListeners() {
             elTimePickerContainer.classList.add('disabled');
         }
     });
-
-    // End-date plan toggle
-    if (elEndPlanSwitch) {
-        elEndPlanSwitch.addEventListener('change', () => {
-            endPlanEnabled = elEndPlanSwitch.checked;
-            if (endPlanEnabled && !endPlanDate) {
-                // Default to 30 days from today the first time it's enabled
-                const d = new Date();
-                d.setDate(d.getDate() + 30);
-                endPlanDate = getLocalDateString(d);
-                if (elEndPlanDate) elEndPlanDate.value = endPlanDate;
-            }
-            saveStateToStorage();
-            refreshCalculations();
-            updateEndPlanUI();
-            showAndroidToast(endPlanEnabled ? "تم تفعيل التخطيط بتاريخ النهاية" : "تم إيقاف التخطيط بتاريخ النهاية");
-        });
-    }
-    if (elEndPlanDate) {
-        elEndPlanDate.addEventListener('change', () => {
-            endPlanDate = elEndPlanDate.value;
-            saveStateToStorage();
-            refreshCalculations();
-            updateEndPlanUI();
-        });
-    }
 
     // Floating Quran Button toggle
     if (elFloatingBtnSwitch) {
@@ -1191,7 +1150,6 @@ function updateUI() {
 
     // Weekly makeup availability
     updateMakeupUI();
-    updateEndPlanUI();
 
     // New dashboards: juz progress, weekly report, monthly chart, badges
     renderJuzProgress();
@@ -1223,7 +1181,7 @@ function updateUI() {
     }
 
     // Weekly goal = daily goal × 7, progress = pages read since the start of this week
-    const weeklyGoal = getBaseDailyGoal() * 7;
+    const weeklyGoal = dailyGoal * 7;
     const weeklyRead = getWeeklyReadCount();
 
     const elWeeklyGoalValText = document.getElementById('weekly-card-goal-val');
@@ -1336,7 +1294,7 @@ function updatePlanStatus() {
     }
 
     // Expected page = pages that should be finished by end of today.
-    const expectedRaw = (startPage - 1) + (daysElapsed * getBaseDailyGoal());
+    const expectedRaw = (startPage - 1) + (daysElapsed * dailyGoal);
     const expectedPage = Math.min(604, Math.max(1, expectedRaw));
 
     const expInfo = quranPages[expectedPage - 1] || quranPages[0];
@@ -1685,25 +1643,9 @@ function getWeekStartString(d = new Date()) {
     return getLocalDateString(base);
 }
 
-// The base daily goal: either the manual goal, or auto-computed from the
-// target end date when the end-date plan is enabled.
-function getBaseDailyGoal() {
-    if (endPlanEnabled && endPlanDate) {
-        const remaining = Math.max(0, 604 - currentPage);
-        if (remaining <= 0) return dailyGoal;
-        const today = new Date(getLocalDateString() + 'T00:00:00');
-        const end = new Date(endPlanDate + 'T00:00:00');
-        let daysLeft = Math.round((end - today) / 86400000) + 1; // inclusive of today
-        if (isNaN(daysLeft) || daysLeft < 1) daysLeft = 1;
-        return Math.max(1, Math.ceil(remaining / daysLeft));
-    }
-    return dailyGoal;
-}
-
 // Daily goal for a given date — doubled on the day a makeup was performed
 function goalForDate(dateStr) {
-    const base = getBaseDailyGoal();
-    return (makeupAppliedDate && dateStr === makeupAppliedDate) ? base * 2 : base;
+    return (makeupAppliedDate && dateStr === makeupAppliedDate) ? dailyGoal * 2 : dailyGoal;
 }
 
 // Most recent past day (within the last 7 days) that is below the goal and
@@ -1843,32 +1785,6 @@ function initNotificationSettings() {
 
 // ===== Floating Quran Button =====
 
-// Init end-date plan settings from stored state
-function initEndPlanSettings() {
-    if (elEndPlanSwitch) elEndPlanSwitch.checked = endPlanEnabled;
-    if (elEndPlanDate && endPlanDate) elEndPlanDate.value = endPlanDate;
-    updateEndPlanUI();
-}
-
-// Enable/disable the date field and show the computed daily goal
-function updateEndPlanUI() {
-    if (elEndPlanDateContainer) {
-        elEndPlanDateContainer.classList.toggle('disabled', !endPlanEnabled);
-    }
-    if (elEndPlanComputed) {
-        if (endPlanEnabled && endPlanDate) {
-            const g = getBaseDailyGoal();
-            const remaining = Math.max(0, 604 - currentPage);
-            elEndPlanComputed.innerText =
-                remaining <= 0
-                    ? 'أتممت المصحف 🎉'
-                    : `الورد اليومي المحسوب: ${g} صفحة (المتبقّي ${remaining} صفحة)`;
-        } else {
-            elEndPlanComputed.innerText = 'الورد اليومي المحسوب: —';
-        }
-    }
-}
-
 // Init floating-button settings: only show the card when a Quran app exists.
 function initFloatingButtonSettings() {
     // The settings card is visible by default (no JS gating) so it always
@@ -1982,9 +1898,7 @@ function exportBackupData() {
         quran_khatmah_start_date: khatmahStartDate,
         quran_makeup_days: makeupDays,
         quran_last_makeup_week: lastMakeupWeek,
-        quran_makeup_applied_date: makeupAppliedDate,
-        quran_endplan_enabled: endPlanEnabled,
-        quran_endplan_date: endPlanDate
+        quran_makeup_applied_date: makeupAppliedDate
     };
 
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
@@ -2018,8 +1932,6 @@ function importBackupData(file) {
                 makeupDays = data.quran_makeup_days || [];
                 lastMakeupWeek = data.quran_last_makeup_week || '';
                 makeupAppliedDate = data.quran_makeup_applied_date || '';
-                endPlanEnabled = data.quran_endplan_enabled === true;
-                endPlanDate = data.quran_endplan_date || '';
                 
                 saveStateToStorage();
                 refreshCalculations();
