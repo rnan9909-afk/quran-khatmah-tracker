@@ -17,6 +17,8 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -34,7 +36,7 @@ public class FloatingButtonService extends Service {
 
     private WindowManager windowManager;
     private View floatingView;
-    private TextView buttonView;
+    private TextView pageText;
     private WindowManager.LayoutParams layoutParams;
     private int targetPage = 0;
 
@@ -56,12 +58,8 @@ public class FloatingButtonService extends Service {
     }
 
     private void updateButtonLabel() {
-        if (buttonView == null) return;
-        if (targetPage > 0) {
-            buttonView.setText("ختمتي\nصفحة " + targetPage);
-        } else {
-            buttonView.setText("ختمتي");
-        }
+        if (pageText == null) return;
+        pageText.setText(targetPage > 0 ? ("ص " + targetPage) : "ختمتي");
     }
 
     private void startAsForeground() {
@@ -96,27 +94,51 @@ public class FloatingButtonService extends Service {
     private void addFloatingButton() {
         windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
 
-        TextView button = new TextView(this);
-        button.setTextColor(Color.WHITE);
-        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        button.setTypeface(button.getTypeface(), android.graphics.Typeface.BOLD);
-        button.setGravity(Gravity.CENTER);
-        button.setLineSpacing(dp(2), 1f);
-        buttonView = button;
+        // Horizontal pill: [logo circle] ص 400
+        LinearLayout pill = new LinearLayout(this);
+        pill.setOrientation(LinearLayout.HORIZONTAL);
+        pill.setGravity(Gravity.CENTER_VERTICAL);
+        pill.setPadding(dp(6), dp(6), dp(14), dp(6));
+
+        GradientDrawable pillBg = new GradientDrawable();
+        pillBg.setColor(Color.parseColor("#14181B"));
+        pillBg.setCornerRadius(dp(30));
+        pillBg.setStroke(dp(1), Color.parseColor("#66ABE83F"));
+        pill.setBackground(pillBg);
+        pill.setElevation(dp(10));
+
+        // Logo inside a white circle
+        int circle = dp(34);
+        ImageView logo = new ImageView(this);
+        GradientDrawable circleBg = new GradientDrawable();
+        circleBg.setShape(GradientDrawable.OVAL);
+        circleBg.setColor(Color.WHITE);
+        logo.setBackground(circleBg);
+        logo.setImageResource(R.drawable.logo);
+        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        int lp = dp(4);
+        logo.setPadding(lp, lp, lp, lp);
+        logo.setClipToOutline(true);
+        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(circle, circle);
+        pill.addView(logo, logoParams);
+
+        // Page text "ص 400"
+        pageText = new TextView(this);
+        pageText.setTextColor(Color.parseColor("#ABE83F"));
+        pageText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        pageText.setTypeface(pageText.getTypeface(), android.graphics.Typeface.BOLD);
+        pageText.setSingleLine(true);
+        LinearLayout.LayoutParams textParams =
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+        textParams.leftMargin = dp(8);
+        textParams.rightMargin = dp(8);
+        pill.addView(pageText, textParams);
+
         updateButtonLabel();
 
-        int padH = dp(20);
-        int padV = dp(12);
-        button.setPadding(padH, padV, padH, padV);
-
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(Color.parseColor("#0E8C6A"));
-        bg.setCornerRadius(dp(28));
-        bg.setStroke(dp(2), Color.parseColor("#FFFFFF"));
-        button.setBackground(bg);
-        button.setElevation(dp(6));
-
-        floatingView = button;
+        floatingView = pill;
 
         int overlayType = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -133,7 +155,7 @@ public class FloatingButtonService extends Service {
         layoutParams.x = dp(16);
         layoutParams.y = dp(120);
 
-        button.setOnTouchListener(new FloatingTouchListener());
+        pill.setOnTouchListener(new FloatingTouchListener());
 
         try {
             windowManager.addView(floatingView, layoutParams);
