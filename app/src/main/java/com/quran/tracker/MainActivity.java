@@ -275,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
          */
         @JavascriptInterface
         public void launchQuranWithFloatingButton(int page) {
-            runOnUiThread(() -> launchQuranWithFloatingButton(page));
+            runOnUiThread(() -> MainActivity.this.launchQuranWithFloatingButton(page));
         }
     }
 
