@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- App logo centered inside the adaptive-icon safe zone (108dp canvas) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="60dp"
+        android:height="60dp"
+        android:gravity="center"
+        android:drawable="@drawable/logo" />
+</layer-list>
