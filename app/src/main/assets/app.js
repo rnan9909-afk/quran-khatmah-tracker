@@ -562,7 +562,11 @@ function setupEventListeners() {
 
     // Import Data Trigger Button
     document.getElementById('btn-import-data-trigger').addEventListener('click', () => {
-        elFileImportInput.click();
+        if (typeof Android !== 'undefined' && Android.importData) {
+            Android.importData();
+        } else {
+            elFileImportInput.click(); // web fallback
+        }
     });
 
     // Import File Selector Change
@@ -1889,63 +1893,94 @@ function onPermissionGranted() {
 window.onPermissionGranted = onPermissionGranted;
 
 // 📥 Export data to local JSON file
-function exportBackupData() {
-    const backupObj = {
+// Build the full backup object (includes all khatmahs + progress)
+function buildBackupObject() {
+    return {
+        quran_active_khatmahs: activeKhatmahs,
+        quran_active_khatmah_id: activeKhatmahId,
         quran_current_page: currentPage,
         quran_daily_goal: dailyGoal,
+        quran_khatmah_start_date: khatmahStartDate,
         quran_reading_history: readingHistory,
         quran_khatmahs: completedKhatmahs,
-        quran_khatmah_start_date: khatmahStartDate,
         quran_makeup_days: makeupDays,
         quran_last_makeup_week: lastMakeupWeek,
         quran_makeup_applied_date: makeupAppliedDate
     };
-
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
-    const downloadAnchor = document.createElement('a');
-    
-    const todayStr = getLocalDateString();
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `khatmati_backup_${todayStr}.json`);
-    
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-    
-    showAndroidToast("تم تصدير ملف النسخة الاحتياطية بنجاح");
 }
 
-// 📤 Import data from uploaded JSON file
+// 📥 Export — via native file save (SAF); web fallback for the browser
+function exportBackupData() {
+    const json = JSON.stringify(buildBackupObject(), null, 2);
+    const filename = `khatmati_backup_${getLocalDateString()}.json`;
+
+    if (typeof Android !== 'undefined' && Android.exportData) {
+        Android.exportData(filename, json);
+    } else {
+        const dataStr = "data:application/json;charset=utf-8," + encodeURIComponent(json);
+        const a = document.createElement('a');
+        a.setAttribute('href', dataStr);
+        a.setAttribute('download', filename);
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showAndroidToast("تم تصدير النسخة الاحتياطية");
+    }
+}
+
+// Apply a parsed backup object to the app state
+async function applyBackupObject(data) {
+    try {
+        const hasModern = Array.isArray(data.quran_active_khatmahs) && data.quran_active_khatmahs.length > 0;
+        if (!hasModern && data.quran_current_page === undefined) {
+            throw new Error("invalid backup");
+        }
+
+        readingHistory = data.quran_reading_history || [];
+        completedKhatmahs = data.quran_khatmahs || [];
+        makeupDays = data.quran_makeup_days || [];
+        lastMakeupWeek = data.quran_last_makeup_week || '';
+        makeupAppliedDate = data.quran_makeup_applied_date || '';
+
+        if (hasModern) {
+            activeKhatmahs = data.quran_active_khatmahs;
+            activeKhatmahId = data.quran_active_khatmah_id || activeKhatmahs[0].id;
+            bindActiveKhatmah(); // load globals from the active khatmah
+        } else {
+            // Legacy single-khatmah backup
+            currentPage = parseInt(data.quran_current_page || '1');
+            dailyGoal = parseInt(data.quran_daily_goal || '10');
+            khatmahStartDate = data.quran_khatmah_start_date || (getLocalDateString() + 'T00:00:00');
+        }
+
+        saveStateToStorage();
+        refreshCalculations();
+
+        showAndroidToast("تم استيراد النسخة الاحتياطية");
+        await showCustomAlert("👍 تم استيراد بياناتك بنجاح واسترجاع تقدّمك في الختمات والأهداف والتقويم!", "استيراد البيانات");
+    } catch (e) {
+        console.error('Error importing backup:', e);
+        await showCustomAlert("❌ ملف النسخة الاحتياطية غير صالح أو تالف.", "فشل الاستيراد");
+    }
+}
+
+// Callback from native import (file content as string)
+function onDataImported(jsonStr) {
+    let data;
+    try {
+        data = JSON.parse(jsonStr);
+    } catch (e) {
+        showCustomAlert("❌ الملف غير صالح.", "فشل الاستيراد");
+        return;
+    }
+    applyBackupObject(data);
+}
+window.onDataImported = onDataImported;
+
+// 📤 Web fallback: import from a chosen file input
 function importBackupData(file) {
     const reader = new FileReader();
-    reader.onload = async function(event) {
-        try {
-            const data = JSON.parse(event.target.result);
-            
-            // Validate imports
-            if (data.quran_current_page !== undefined) {
-                currentPage = parseInt(data.quran_current_page);
-                dailyGoal = parseInt(data.quran_daily_goal || '10');
-                readingHistory = data.quran_reading_history || [];
-                completedKhatmahs = data.quran_khatmahs || [];
-                khatmahStartDate = data.quran_khatmah_start_date || new Date().toISOString();
-                makeupDays = data.quran_makeup_days || [];
-                lastMakeupWeek = data.quran_last_makeup_week || '';
-                makeupAppliedDate = data.quran_makeup_applied_date || '';
-                
-                saveStateToStorage();
-                refreshCalculations();
-                
-                showAndroidToast("تم استيراد النسخة الاحتياطية وتحديث تقدمك!");
-                await showCustomAlert("👍 تم استيراد البيانات واسترجاع تقدمك في الختمات والأهداف والتقويم بنجاح!", "استيراد البيانات");
-            } else {
-                throw new Error("ملف غير صالح");
-            }
-        } catch(e) {
-            await showCustomAlert("❌ خطأ: ملف النسخة الاحتياطية غير صالح أو تالف.", "فشل الاستيراد");
-            console.error('Error importing backup:', e);
-        }
-    };
+    reader.onload = (event) => onDataImported(event.target.result);
     reader.readAsText(file);
 }
 

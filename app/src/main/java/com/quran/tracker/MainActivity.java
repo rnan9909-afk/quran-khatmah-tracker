@@ -25,6 +25,12 @@ import androidx.core.content.ContextCompat;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,6 +41,10 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 2002;
     private static final int OVERLAY_PERMISSION_REQUEST_CODE = 2003;
+    private static final int EXPORT_REQUEST_CODE = 3001;
+    private static final int IMPORT_REQUEST_CODE = 3002;
+
+    private String pendingExportJson = null;
 
     // Known Quran apps, in order of preference. The first installed one is used.
     private static final String[] QURAN_PACKAGES = {
@@ -166,6 +176,39 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void showToast(String message) {
             Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+        }
+
+        /** Export: let the user pick where to save the backup JSON file. */
+        @JavascriptInterface
+        public void exportData(String filename, String json) {
+            pendingExportJson = json;
+            runOnUiThread(() -> {
+                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/json");
+                intent.putExtra(Intent.EXTRA_TITLE,
+                        (filename == null || filename.isEmpty()) ? "khatmati_backup.json" : filename);
+                try {
+                    startActivityForResult(intent, EXPORT_REQUEST_CODE);
+                } catch (Exception e) {
+                    Toast.makeText(mContext, "تعذّر فتح نافذة الحفظ.", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+        /** Import: let the user pick a backup JSON file to restore. */
+        @JavascriptInterface
+        public void importData() {
+            runOnUiThread(() -> {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                try {
+                    startActivityForResult(intent, IMPORT_REQUEST_CODE);
+                } catch (Exception e) {
+                    Toast.makeText(mContext, "تعذّر فتح منتقي الملفات.", Toast.LENGTH_LONG).show();
+                }
+            });
         }
 
         /** Store the latest progress and refresh the home-screen widget. */
@@ -400,11 +443,55 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
             final boolean granted = Settings.canDrawOverlays(this);
             runOnUiThread(() -> webView.evaluateJavascript(
                     "if (typeof onOverlayPermissionResult === 'function') { onOverlayPermissionResult("
                             + granted + "); }", null));
+
+        } else if (requestCode == EXPORT_REQUEST_CODE) {
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                writeExport(data.getData());
+            }
+            pendingExportJson = null;
+
+        } else if (requestCode == IMPORT_REQUEST_CODE) {
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                readImport(data.getData());
+            }
         }
+    }
+
+    private void writeExport(Uri uri) {
+        if (pendingExportJson == null) return;
+        try (OutputStream os = getContentResolver().openOutputStream(uri)) {
+            if (os != null) {
+                os.write(pendingExportJson.getBytes(StandardCharsets.UTF_8));
+                os.flush();
+                Toast.makeText(this, "تم حفظ ملف النسخة الاحتياطية بنجاح ✅", Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "تعذّر حفظ الملف.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void readImport(Uri uri) {
+        StringBuilder sb = new StringBuilder();
+        try (InputStream is = getContentResolver().openInputStream(uri);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "تعذّر قراءة الملف.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        final String content = sb.toString();
+        runOnUiThread(() -> webView.evaluateJavascript(
+                "if (typeof onDataImported === 'function') { onDataImported("
+                        + JSONObject.quote(content) + "); }", null));
     }
 }
