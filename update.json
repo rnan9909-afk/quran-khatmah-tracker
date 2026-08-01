@@ -1,7 +1,7 @@
 {
-    "versionCode":  31,
-    "versionName":  "5.0",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v5.0/khatmati-5.0.apk",
-    "notes":  "• تظهر رسالة التحديث مباشرة عند فتح التطبيق.\n• تحسينات على نظام التحديث التلقائي.",
+    "versionCode":  32,
+    "versionName":  "5.1",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v5.1/khatmati-5.1.apk",
+    "notes":  "• تجربة ظهور رسالة التحديث تلقائياً عند فتح التطبيق.\n• بعد التثبيت ستصبح النسخة 5.1 في صفحة «عن التطبيق».",
     "mandatory":  false
 }
