@@ -1,7 +1,7 @@
 {
-    "versionCode":  34,
-    "versionName":  "5.3",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v5.3/khatmati-5.3.apk",
-    "notes":  "• السحب للأسفل في الصفحة الرئيسية يُحدِّث البيانات ويتحقق من وجود تحديث للتطبيق.\n• تحسينات على نظام التحديث التلقائي.",
+    "versionCode":  35,
+    "versionName":  "5.4",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v5.4/khatmati-5.4.apk",
+    "notes":  "• إصلاح: السحب للتحديث يعمل فقط عندما تكون في أعلى الصفحة الرئيسية، ولا يعطّل التمرير العادي.",
     "mandatory":  false
 }
