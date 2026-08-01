@@ -1,7 +1,27 @@
 <title>ختمتي — تطبيق متابعة الورد القرآني</title>
 <meta name="description" content="تطبيق أندرويد مجاني لمتابعة وردك اليومي من القرآن وإدارة ختماتك. تحميل مباشر.">
 
+<link rel="preload" href="fonts/thmanyahseriftext-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/thmanyahseriftext-Black.woff2" as="font" type="font/woff2" crossorigin>
+
 <style>
+@font-face {
+    font-family: "Thmanyah";
+    src: url("fonts/thmanyahseriftext-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    /* headings and anything at 700 land here — no synthetic bolding */
+    font-family: "Thmanyah";
+    src: url("fonts/thmanyahseriftext-Black.woff2") format("woff2");
+    font-weight: 700 900;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     /* Ground and ink carry a green bias so the lime never floats free of the page */
     --ground:      #070907;
@@ -18,8 +38,8 @@
     --line-strong: rgba(171, 232, 63, 0.35);
     --glow:        0 0 70px rgba(171, 232, 63, 0.16);
 
-    --serif: "Traditional Arabic", "Noto Naskh Arabic", "Amiri", "Scheherazade New", serif;
-    --sans:  "Segoe UI", "Noto Sans Arabic", "Tajawal", Tahoma, system-ui, sans-serif;
+    --serif: "Thmanyah", "Traditional Arabic", "Noto Naskh Arabic", "Amiri", "Scheherazade New", serif;
+    --sans:  "Thmanyah", "Segoe UI", "Noto Sans Arabic", "Tajawal", Tahoma, system-ui, sans-serif;
 
     --measure: 62ch;
     --radius: 20px;
