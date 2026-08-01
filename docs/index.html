@@ -1,3 +1,9 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#070907">
+
 <title>ختمتي — تطبيق متابعة الورد القرآني</title>
 <meta name="description" content="تطبيق أندرويد مجاني لمتابعة وردك اليومي من القرآن وإدارة ختماتك. تحميل مباشر.">
 
@@ -520,6 +526,25 @@ footer a { color: var(--ink-soft); }
     .hero-copy p { margin-inline: auto; }
     .facts { justify-content: center; }
     .arc-badge { inset-inline-start: 10px; width: 96px; height: 96px; }
+}
+
+/* Phones: buy back horizontal room and let the CTAs go full width */
+@media (max-width: 560px) {
+    body { font-size: 16px; }
+    .wrap { width: min(1120px, 94vw); }
+
+    .topbar-in { gap: 10px; }
+    .brand span { font-size: 1rem; }
+    .btn-sm { padding: 9px 15px; font-size: 0.84rem; }
+
+    .cta-row { flex-direction: column; align-items: stretch; }
+    .cta-row .btn { justify-content: center; width: 100%; }
+
+    .facts { gap: 6px 14px; font-size: 0.82rem; }
+    .feature, .step { padding: 20px 18px; }
+    .step { gap: 12px; }
+    .arc-badge { inset-inline-start: 4px; bottom: 20px; width: 84px; height: 84px; }
+    .arc-text b { font-size: 1.25rem; }
 }
 </style>
 
