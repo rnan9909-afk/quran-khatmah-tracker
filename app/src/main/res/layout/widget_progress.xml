@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Home-screen widget. The whole surface opens the quick-adjust sheet; the
-    stepper buttons carve their own tap targets out of it, so a press on ‹ › − +
-    adjusts in place while a press anywhere else opens the sheet.
--->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/widget_bg"
-    android:padding="12dp"
+    android:padding="14dp"
     android:layoutDirection="rtl">
 
-    <!-- Header: brand, khatmah name, percent -->
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,33 +16,32 @@
 
         <TextView
             android:id="@+id/widget_app_name"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="ختمتي"
             android:textColor="#FFFFFF"
-            android:textSize="12sp"
+            android:textSize="13sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/widget_khatmah_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:text=""
-            android:textColor="#8D977F"
-            android:textSize="10sp"
-            android:maxLines="1"
-            android:ellipsize="end" />
-
-        <TextView
-            android:id="@+id/widget_streak"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="🔥 0"
-            android:textColor="#C9D1C4"
-            android:textSize="10sp" />
+            android:text=""
+            android:textColor="#98A18E"
+            android:textSize="11sp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+    <!-- Percent + page -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="bottom"
+        android:layout_marginTop="8dp">
 
         <TextView
             android:id="@+id/widget_percent"
@@ -56,199 +49,58 @@
             android:layout_height="wrap_content"
             android:text="0%"
             android:textColor="#ABE83F"
-            android:textSize="16sp"
+            android:textSize="26sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_page"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="3dp"
+            android:text="الصفحة 1 / 604"
+            android:textColor="#C9D1C4"
+            android:textSize="12sp"
+            android:gravity="start" />
     </LinearLayout>
 
+    <!-- Progress bar -->
     <ProgressBar
         android:id="@+id/widget_progress_bar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="6dp"
-        android:layout_marginTop="7dp"
+        android:layout_height="10dp"
+        android:layout_marginTop="8dp"
         android:max="100"
         android:progress="0"
         android:progressDrawable="@drawable/widget_progress_track" />
 
-    <!-- ===== Surah row: ‹ name › ===== -->
+    <!-- Footer: today's goal + streak -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="8dp"
-        android:minHeight="38dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/widget_row_bg"
-        android:paddingStart="6dp"
-        android:paddingEnd="6dp">
-
-        <TextView
-            android:id="@+id/widget_surah_prev"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@drawable/widget_step_btn"
-            android:gravity="center"
-            android:text="‹"
-            android:textColor="#ABE83F"
-            android:textSize="17sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/widget_surah_label"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="الفاتحة"
-            android:textColor="#F1F4EC"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:maxLines="1"
-            android:ellipsize="end" />
-
-        <TextView
-            android:id="@+id/widget_surah_next"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@drawable/widget_step_btn"
-            android:gravity="center"
-            android:text="›"
-            android:textColor="#ABE83F"
-            android:textSize="17sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <!-- ===== Page row: − 45 + ===== -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="6dp"
-        android:minHeight="38dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/widget_row_bg"
-        android:paddingStart="6dp"
-        android:paddingEnd="6dp">
-
-        <TextView
-            android:id="@+id/widget_page_dec"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@drawable/widget_step_btn"
-            android:gravity="center"
-            android:text="−"
-            android:textColor="#ABE83F"
-            android:textSize="17sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="الصفحة"
-                android:textColor="#8D977F"
-                android:textSize="10sp" />
-
-            <TextView
-                android:id="@+id/widget_page_val"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="1"
-                android:textColor="#F1F4EC"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/widget_page_inc"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@drawable/widget_step_btn"
-            android:gravity="center"
-            android:text="+"
-            android:textColor="#ABE83F"
-            android:textSize="17sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <!-- ===== Ayah row: − 12 + ===== -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="6dp"
-        android:minHeight="38dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/widget_row_bg"
-        android:paddingStart="6dp"
-        android:paddingEnd="6dp">
-
-        <TextView
-            android:id="@+id/widget_ayah_dec"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@drawable/widget_step_btn"
-            android:gravity="center"
-            android:text="−"
-            android:textColor="#ABE83F"
-            android:textSize="17sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="الآية"
-                android:textColor="#8D977F"
-                android:textSize="10sp" />
-
-            <TextView
-                android:id="@+id/widget_ayah_val"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="1"
-                android:textColor="#F1F4EC"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/widget_ayah_inc"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@drawable/widget_step_btn"
-            android:gravity="center"
-            android:text="+"
-            android:textColor="#ABE83F"
-            android:textSize="17sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/widget_today"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
-        android:gravity="center"
-        android:text="وردك اليوم: 0 / 10"
-        android:textColor="#8D977F"
-        android:textSize="10sp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/widget_today"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="وردك اليوم: 0 / 10"
+            android:textColor="#C9D1C4"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/widget_streak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔥 0"
+            android:textColor="#ABE83F"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
 </LinearLayout>

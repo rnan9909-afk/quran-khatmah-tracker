@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Taller than a plain progress widget because it now carries three control
-    rows (surah / page / ayah) above the footer.
--->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="250dp"
-    android:minHeight="180dp"
-    android:minResizeWidth="180dp"
-    android:minResizeHeight="150dp"
+    android:minWidth="180dp"
+    android:minHeight="110dp"
     android:targetCellWidth="4"
-    android:targetCellHeight="4"
+    android:targetCellHeight="2"
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_progress"
     android:previewLayout="@layout/widget_progress"

@@ -1263,33 +1263,6 @@ function updateUI() {
     pushWidgetUpdate(Math.round(parseFloat(progressPct)), currentPage, todayRead, todayGoalForStats);
 }
 
-/**
- * Entry point for the home-screen widget and the quick-adjust sheet.
- *
- * The native side can move the position but must not compute progress — the
- * daily count, streak, makeup days and khatmah completion all come out of
- * recordProgress(). Routing widget changes back through it is what keeps the
- * widget and the app telling the same story.
- *
- * Returns 'wait' while the app is still booting so the caller can retry, and
- * 'ok' once the change is saved.
- */
-window.applyWidgetPosition = function (page) {
-    try {
-        if (!Array.isArray(quranPages) || quranPages.length === 0) return 'wait';
-        const p = Math.max(1, Math.min(604, parseInt(page, 10) || 1));
-        if (p !== currentPage) {
-            recordProgress(p);
-        } else {
-            refreshCalculations();
-        }
-        return 'ok';
-    } catch (e) {
-        console.error('applyWidgetPosition failed', e);
-        return 'err';
-    }
-};
-
 // Send progress to the native home-screen widget
 function pushWidgetUpdate(percent, page, todayRead, todayGoal) {
     if (typeof Android === 'undefined' || !Android.updateWidget) return;

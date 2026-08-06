@@ -76,22 +76,10 @@ public class MainActivity extends AppCompatActivity {
 
     private WebView webView;
 
-    /**
-     * The running activity, or null when the app is closed. The widget commit
-     * path checks this: while the app is open its WebView must be the only one
-     * writing localStorage, or a foreground save would clobber the commit.
-     */
-    private static MainActivity liveInstance;
-
-    static MainActivity getLiveInstance() {
-        return liveInstance;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        liveInstance = this;
 
         webView = findViewById(R.id.webview);
         WebSettings webSettings = webView.getSettings();
@@ -118,9 +106,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                // A page picked on the widget while the app was closed may not
-                // have reached localStorage yet — apply it before anything else.
-                applyPendingWidgetPage();
                 // Silent update check once the UI is ready (throttled, see below).
                 maybeCheckForUpdateSilently();
             }
@@ -130,84 +115,6 @@ public class MainActivity extends AppCompatActivity {
 
         webView.clearCache(true);
         webView.loadUrl("file:///android_asset/index.html");
-    }
-
-    /**
-     * Run the app's own {@code recordProgress()} for a page chosen on the
-     * widget, so today's count, the streak and the goals all move exactly as
-     * they would had the user tapped inside the app.
-     */
-    void applyWidgetPosition(final int page) {
-        if (webView == null) return;
-        webView.post(() -> {
-            try {
-                webView.evaluateJavascript(
-                        "(function(){try{"
-                                + "if(typeof applyWidgetPosition!=='function')return 'wait';"
-                                + "return applyWidgetPosition(" + page + ");"
-                                + "}catch(e){return 'err';}})()", null);
-            } catch (Throwable ignored) {
-            }
-        });
-    }
-
-    /** Apply a widget change that never made it into localStorage. */
-    private void applyPendingWidgetPage() {
-        SharedPreferences prefs =
-                getSharedPreferences("QuranTrackerPrefs", Context.MODE_PRIVATE);
-        int pending = prefs.getInt(WidgetCommitService.KEY_PENDING_PAGE, 0);
-        if (pending > 0) {
-            prefs.edit().remove(WidgetCommitService.KEY_PENDING_PAGE).apply();
-            applyWidgetPosition(pending);
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (liveInstance == this) liveInstance = null;
-        super.onDestroy();
-    }
-
-    /**
-     * The slice of the {@code Android} bridge a headless commit WebView needs.
-     * app.js guards every other bridge call with {@code Android.method &&}, so
-     * the absent members simply switch those features off for that instance.
-     */
-    static class WidgetBridge {
-        private final Context ctx;
-
-        WidgetBridge(Context context) {
-            this.ctx = context.getApplicationContext();
-        }
-
-        @JavascriptInterface
-        public void updateWidget(int percent, int currentPage, int todayRead,
-                                 int dailyGoal, int streak, String khatmahName) {
-            writeWidgetPrefs(ctx, percent, currentPage, todayRead, dailyGoal, streak, khatmahName);
-        }
-
-        /** No UI to toast onto during a headless commit. */
-        @JavascriptInterface
-        public void showToast(String message) {
-        }
-    }
-
-    /** Single place that mirrors progress into the widget's preferences. */
-    static void writeWidgetPrefs(Context context, int percent, int currentPage, int todayRead,
-                                 int dailyGoal, int streak, String khatmahName) {
-        SharedPreferences.Editor editor = context
-                .getSharedPreferences("QuranTrackerPrefs", Context.MODE_PRIVATE).edit();
-        editor.putInt("widget_percent", percent);
-        editor.putInt(QuranProgressWidget.KEY_PAGE, currentPage);
-        editor.putInt(QuranProgressWidget.KEY_AYAH,
-                QuranData.get(context).firstAyahOfPage(currentPage));
-        editor.putInt("widget_today_read", todayRead);
-        editor.putInt("widget_daily_goal", dailyGoal);
-        editor.putInt("widget_streak", streak);
-        editor.putString("widget_khatmah_name", khatmahName == null ? "" : khatmahName);
-        editor.apply();
-
-        QuranProgressWidget.refreshAll(context);
     }
 
     @Override
@@ -335,8 +242,17 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void updateWidget(int percent, int currentPage, int todayRead,
                                  int dailyGoal, int streak, String khatmahName) {
-            writeWidgetPrefs(mContext, percent, currentPage, todayRead,
-                    dailyGoal, streak, khatmahName);
+            SharedPreferences.Editor editor = mContext
+                    .getSharedPreferences("QuranTrackerPrefs", Context.MODE_PRIVATE).edit();
+            editor.putInt("widget_percent", percent);
+            editor.putInt("widget_current_page", currentPage);
+            editor.putInt("widget_today_read", todayRead);
+            editor.putInt("widget_daily_goal", dailyGoal);
+            editor.putInt("widget_streak", streak);
+            editor.putString("widget_khatmah_name", khatmahName == null ? "" : khatmahName);
+            editor.apply();
+
+            QuranProgressWidget.refreshAll(mContext);
         }
 
         // ===== Floating button feature =====
