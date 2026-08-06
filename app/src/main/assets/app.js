@@ -138,6 +138,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupEventListeners();
     initNotificationSettings();
     initFloatingButtonSettings();
+    initUpdateSystem();
+    initPullToRefresh();
     
     // Process streaks and render UI
     refreshCalculations();
@@ -2092,4 +2094,336 @@ function showCustomConfirm(message, title = "تأكيد") {
         cancelBtn.addEventListener('click', onCancel);
         modal.classList.add('open');
     });
+}
+
+// ============================================================
+//  In-app update system
+//  Java side: UpdateManager.java + MainActivity's Android bridge.
+//  The Java side calls onUpdateAvailable / onUpdateNotAvailable /
+//  onUpdateProgress / onUpdateDownloaded / onUpdateError below.
+// ============================================================
+
+let pendingUpdateInfo = null;
+let updateCheckIsManual = false;
+
+function initUpdateSystem() {
+    const bridge = (typeof Android !== 'undefined' && Android.checkForUpdate) ? Android : null;
+
+    // Show the real installed version in the "about" card.
+    const versionEl = document.getElementById('about-version');
+    if (versionEl && bridge && Android.getAppVersionName) {
+        try {
+            const v = Android.getAppVersionName();
+            if (v) versionEl.innerText = 'نسخة ' + v;
+        } catch (e) { /* keep the static text */ }
+    }
+
+    const checkBtn = document.getElementById('btn-check-update');
+    if (checkBtn) {
+        checkBtn.addEventListener('click', () => {
+            if (!bridge) {
+                setUpdateStatus('التحديث متاح داخل التطبيق فقط.');
+                return;
+            }
+            updateCheckIsManual = true;
+            checkBtn.disabled = true;
+            setUpdateStatus('جارٍ التحقق…');
+            Android.checkForUpdate(true);
+            // Re-enable even if the network call hangs.
+            setTimeout(() => { checkBtn.disabled = false; }, 20000);
+        });
+    }
+
+    const laterBtn = document.getElementById('btn-update-later');
+    if (laterBtn) {
+        laterBtn.addEventListener('click', () => {
+            if (pendingUpdateInfo && pendingUpdateInfo.mandatory) return; // forced update
+            // Only hides the dialog for now — it reappears on the next launch
+            // until the update is actually installed.
+            closeUpdateModal();
+        });
+    }
+
+    const nowBtn = document.getElementById('btn-update-now');
+    if (nowBtn) {
+        nowBtn.addEventListener('click', () => {
+            if (!(typeof Android !== 'undefined' && Android.startUpdateDownload)) return;
+            nowBtn.disabled = true;
+            laterBtn.disabled = true;
+            document.getElementById('update-progress-wrap').style.display = 'block';
+            setUpdateProgress(0);
+            Android.startUpdateDownload();
+        });
+    }
+}
+
+function setUpdateStatus(text) {
+    const el = document.getElementById('update-status');
+    if (el) el.innerText = text || '';
+}
+
+function setUpdateProgress(percent) {
+    const fill = document.getElementById('update-progress-fill');
+    const label = document.getElementById('update-progress-label');
+    if (percent < 0) {
+        // Unknown size — show an indeterminate-looking bar.
+        if (fill) fill.style.width = '100%';
+        if (label) label.innerText = 'جارٍ التنزيل…';
+        return;
+    }
+    if (fill) fill.style.width = Math.max(0, Math.min(100, percent)) + '%';
+    if (label) label.innerText = 'جارٍ التنزيل… ' + percent + '%';
+}
+
+function closeUpdateModal() {
+    const modal = document.getElementById('modal-update');
+    if (modal) modal.classList.remove('open');
+}
+
+/** Called from Java with the update manifest JSON when a newer build exists. */
+function onUpdateAvailable(jsonText) {
+    let info;
+    try {
+        info = JSON.parse(jsonText);
+    } catch (e) {
+        return;
+    }
+    pendingUpdateInfo = info;
+
+    const checkBtn = document.getElementById('btn-check-update');
+    if (checkBtn) checkBtn.disabled = false;
+    setUpdateStatus('يتوفر إصدار جديد: ' + (info.versionName || ''));
+    resolvePullRefresh('يتوفر تحديث جديد ' + (info.versionName || ''));
+
+    // The dialog is shown on every launch while an update is pending, so the
+    // user always knows a newer version is waiting.
+    updateCheckIsManual = false;
+
+    document.getElementById('update-version').innerText =
+        'الإصدار ' + (info.versionName || '') + ' جاهز للتثبيت';
+    document.getElementById('update-notes').innerText = info.notes || 'تحسينات وإصلاحات عامة.';
+
+    const laterBtn = document.getElementById('btn-update-later');
+    const nowBtn = document.getElementById('btn-update-now');
+    nowBtn.disabled = false;
+    laterBtn.disabled = false;
+    laterBtn.style.display = info.mandatory ? 'none' : 'block';
+    document.getElementById('update-title').innerText =
+        info.mandatory ? 'تحديث مطلوب' : 'يتوفر تحديث جديد';
+
+    document.getElementById('update-progress-wrap').style.display = 'none';
+    document.getElementById('modal-update').classList.add('open');
+}
+
+/** Called from Java when the check succeeded but no newer build exists. */
+function onUpdateNotAvailable(detail) {
+    const checkBtn = document.getElementById('btn-check-update');
+    if (checkBtn) checkBtn.disabled = false;
+    updateCheckIsManual = false;
+    setUpdateStatus('أنت على أحدث إصدار ✅' + (detail ? '  (' + detail + ')' : ''));
+    resolvePullRefresh('التطبيق محدَّث — لا يوجد إصدار جديد ✅');
+}
+
+function onUpdateProgress(percent) {
+    setUpdateProgress(percent);
+}
+
+/** The APK finished downloading; the system installer is opening. */
+function onUpdateDownloaded() {
+    const label = document.getElementById('update-progress-label');
+    if (label) label.innerText = 'اكتمل التنزيل — جارٍ فتح شاشة التثبيت…';
+    setUpdateProgress(100);
+}
+
+function onUpdateError(message) {
+    const checkBtn = document.getElementById('btn-check-update');
+    if (checkBtn) checkBtn.disabled = false;
+    updateCheckIsManual = false;
+    resolvePullRefresh('تعذّر التحقق من التحديث');
+
+    const modal = document.getElementById('modal-update');
+    const isModalOpen = modal && modal.classList.contains('open');
+
+    if (isModalOpen) {
+        const label = document.getElementById('update-progress-label');
+        if (label) label.innerText = message || 'حدث خطأ أثناء التحديث.';
+        const nowBtn = document.getElementById('btn-update-now');
+        const laterBtn = document.getElementById('btn-update-later');
+        if (nowBtn) { nowBtn.disabled = false; nowBtn.innerText = 'إعادة المحاولة'; }
+        if (laterBtn) { laterBtn.disabled = false; laterBtn.style.display = 'block'; }
+    } else {
+        setUpdateStatus(message || 'تعذّر التحقق من التحديثات.');
+    }
+}
+
+// ============================================================
+//  Pull to refresh — home tab only.
+//  Dragging the page down from the very top refreshes the UI and
+//  checks for an app update at the same time.
+// ============================================================
+
+const PTR_TRIGGER_DISTANCE = 70;   // px the user must drag to fire a refresh
+const PTR_MAX_PULL = 110;          // px the indicator can travel
+
+/**
+ * The whole document scrolls (.app-container is min-height:100vh), so the page
+ * offset — not any inner element's scrollTop — decides whether we are at the top.
+ */
+function pageScrollTop() {
+    return window.pageYOffset
+        || (document.documentElement && document.documentElement.scrollTop)
+        || (document.body && document.body.scrollTop)
+        || 0;
+}
+
+function initPullToRefresh() {
+    const indicator = document.getElementById('ptr-indicator');
+    if (!indicator) return;
+
+    let startY = 0;
+    let startX = 0;
+    let pulling = false;      // finger is down at the top of the page
+    let engaged = false;      // the pull gesture actually took over
+    let distance = 0;
+    let refreshing = false;
+
+    const homeIsActive = () => {
+        const home = document.getElementById('tab-home');
+        return home && home.classList.contains('active');
+    };
+
+    const moveIndicator = (px, opacity) => {
+        indicator.style.transform = 'translate(-50%, ' + px + 'px)';
+        indicator.style.opacity = opacity;
+    };
+
+    const reset = (animated) => {
+        indicator.style.transition = animated ? 'transform 0.25s ease, opacity 0.25s ease' : '';
+        indicator.classList.remove('loading');
+        moveIndicator(-60, 0);
+    };
+
+    document.addEventListener('touchstart', (e) => {
+        pulling = false;
+        engaged = false;
+        distance = 0;
+
+        if (refreshing || !homeIsActive() || e.touches.length !== 1) return;
+        if (pageScrollTop() > 0) return;   // only from the very top of the page
+
+        startY = e.touches[0].clientY;
+        startX = e.touches[0].clientX;
+        pulling = true;
+        indicator.style.transition = '';
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!pulling) return;
+
+        const dy = e.touches[0].clientY - startY;
+        const dx = e.touches[0].clientX - startX;
+
+        // Any upward move, sideways swipe, or the page having scrolled away
+        // from the top means this is a normal scroll — hand it back untouched.
+        if (dy <= 0 || Math.abs(dx) > Math.abs(dy) || pageScrollTop() > 0) {
+            if (engaged) reset(true);
+            pulling = false;
+            engaged = false;
+            return;
+        }
+
+        // Ignore the first few pixels so taps and small drags behave normally.
+        if (!engaged) {
+            if (dy < 12) return;
+            engaged = true;
+        }
+
+        // Rubber-band effect: the further you pull, the slower it follows.
+        distance = Math.min(PTR_MAX_PULL, dy * 0.5);
+        moveIndicator(distance - 20, Math.min(1, distance / PTR_TRIGGER_DISTANCE));
+
+        // Stop the page itself from scrolling/bouncing while pulling.
+        if (e.cancelable) e.preventDefault();
+    }, { passive: false });
+
+    const onTouchEnd = () => {
+        if (!engaged) {
+            pulling = false;
+            return;
+        }
+        engaged = false;
+        if (!pulling) return;
+        pulling = false;
+
+        if (distance >= PTR_TRIGGER_DISTANCE) {
+            refreshing = true;
+            indicator.style.transition = 'transform 0.2s ease';
+            indicator.classList.add('loading');
+            moveIndicator(45, 1);
+
+            runPullRefresh(() => {
+                refreshing = false;
+                reset(true);
+            });
+        } else {
+            reset(true);
+        }
+    };
+
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
+    document.addEventListener('touchcancel', onTouchEnd, { passive: true });
+}
+
+/** Recomputes the UI and asks the server for a newer app version. */
+function runPullRefresh(done) {
+    let finished = false;
+    const finish = (message) => {
+        if (finished) return;
+        finished = true;
+        showPtrToast(message);
+        done();
+    };
+
+    try {
+        refreshCalculations();
+    } catch (e) { /* keep going — the update check still matters */ }
+
+    if (typeof Android !== 'undefined' && Android.checkForUpdate) {
+        // A pending update opens its own dialog; these callbacks only close the spinner.
+        pullRefreshPending = finish;
+        updateCheckIsManual = true;
+        Android.checkForUpdate(true);
+        // Never leave the spinner running if the network hangs.
+        setTimeout(() => finish('تم تحديث البيانات'), 12000);
+    } else {
+        setTimeout(() => finish('تم تحديث البيانات'), 600);
+    }
+}
+
+/** Set while a pull-refresh waits for the update check to answer. */
+let pullRefreshPending = null;
+
+function resolvePullRefresh(message) {
+    if (!pullRefreshPending) return;
+    const fn = pullRefreshPending;
+    pullRefreshPending = null;
+    fn(message);
+}
+
+function showPtrToast(message) {
+    if (!message) return;
+    let toast = document.getElementById('ptr-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'ptr-toast';
+        toast.className = 'ptr-toast';
+        document.body.appendChild(toast);
+    }
+    toast.innerText = message;
+    // Restart the animation even if a previous toast is still visible.
+    toast.classList.remove('show');
+    void toast.offsetWidth;
+    toast.classList.add('show');
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 2200);
 }

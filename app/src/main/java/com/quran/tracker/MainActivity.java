@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -43,8 +44,21 @@ public class MainActivity extends AppCompatActivity {
     private static final int OVERLAY_PERMISSION_REQUEST_CODE = 2003;
     private static final int EXPORT_REQUEST_CODE = 3001;
     private static final int IMPORT_REQUEST_CODE = 3002;
+    private static final int INSTALL_PERMISSION_REQUEST_CODE = 3003;
 
     private String pendingExportJson = null;
+
+    private UpdateManager updateManager;
+    /** Details of the update the user was offered, kept until the download starts. */
+    private JSONObject pendingUpdate = null;
+    /** Downloaded APK waiting for the install permission to be granted. */
+    private File pendingApk = null;
+    /** Guards against re-checking when the WebView reloads. */
+    private boolean updateCheckedThisLaunch = false;
+    private long lastUpdateCheckMs = 0L;
+
+    /** Shortest gap between two update checks when returning to the app. */
+    private static final long RESUME_CHECK_INTERVAL_MS = 60_000L;
 
     // Known Quran apps, in order of preference. The first installed one is used.
     private static final String[] QURAN_PACKAGES = {
@@ -86,7 +100,16 @@ public class MainActivity extends AppCompatActivity {
         // Never serve stale HTML/JS from cache after an app update.
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
-        webView.setWebViewClient(new WebViewClient());
+        updateManager = new UpdateManager(this);
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                // Silent update check once the UI is ready (throttled, see below).
+                maybeCheckForUpdateSilently();
+            }
+        });
         webView.setWebChromeClient(new WebChromeClient());
         webView.addJavascriptInterface(new WebAppInterface(this), "Android");
 
@@ -100,6 +123,10 @@ public class MainActivity extends AppCompatActivity {
         // Once the user is back inside ختمتي, the floating return button is no
         // longer needed (covers returning via the button, Back, or Recents).
         stopService(new Intent(this, FloatingButtonService.class));
+
+        // Opening the app usually resumes the existing activity instead of
+        // creating it, so onPageFinished never fires again — check here too.
+        checkForUpdateOnResume();
     }
 
     @Override
@@ -322,6 +349,162 @@ public class MainActivity extends AppCompatActivity {
         public void launchQuranWithFloatingButton(int page) {
             runOnUiThread(() -> MainActivity.this.launchQuranWithFloatingButton(page));
         }
+
+        // ===== In-app update =====
+
+        /** Installed version, e.g. "4.7". */
+        @JavascriptInterface
+        public String getAppVersionName() {
+            return updateManager.getInstalledVersionName();
+        }
+
+        @JavascriptInterface
+        public int getAppVersionCode() {
+            return updateManager.getInstalledVersionCode();
+        }
+
+        /**
+         * Asks the update server whether a newer build exists.
+         * The result comes back as onUpdateAvailable / onUpToDate / onUpdateError in JS.
+         *
+         * @param manual true when the user pressed "check for updates" — only then do
+         *               we report "you are up to date" or connection errors.
+         */
+        @JavascriptInterface
+        public void checkForUpdate(boolean manual) {
+            runOnUiThread(() -> MainActivity.this.runUpdateCheck(manual));
+        }
+
+        /** Downloads the offered update and launches the installer when finished. */
+        @JavascriptInterface
+        public void startUpdateDownload() {
+            runOnUiThread(MainActivity.this::startUpdateDownload);
+        }
+
+        /** True once the user allowed this app to install APKs (Android 8+). */
+        @JavascriptInterface
+        public boolean canInstallPackages() {
+            return updateManager.canInstallPackages();
+        }
+    }
+
+    // ===== In-app update =====
+
+    /**
+     * Runs every time the app is opened: checks quietly and, if a newer build
+     * exists, the web layer pops the update dialog right away. onPageFinished can
+     * fire again (reloads, back navigation) so the check is done once per launch.
+     */
+    private void maybeCheckForUpdateSilently() {
+        if (updateCheckedThisLaunch) return;
+        updateCheckedThisLaunch = true;
+        lastUpdateCheckMs = System.currentTimeMillis();
+        runUpdateCheck(false);
+    }
+
+    /**
+     * Re-checks when the user comes back to the app. Throttled by a minute so
+     * short trips out (permission screens, the Quran app, the installer) do not
+     * fire a request each time.
+     */
+    private void checkForUpdateOnResume() {
+        if (!updateCheckedThisLaunch) return;          // the page-load check will run
+        if (updateManager.isDownloading() || pendingApk != null) return;
+        if (System.currentTimeMillis() - lastUpdateCheckMs < RESUME_CHECK_INTERVAL_MS) return;
+
+        lastUpdateCheckMs = System.currentTimeMillis();
+        runUpdateCheck(false);
+    }
+
+    private void runUpdateCheck(final boolean manual) {
+        updateManager.checkForUpdate(new UpdateManager.CheckCallback() {
+            @Override
+            public void onUpdateAvailable(JSONObject info) {
+                pendingUpdate = info;
+                callJs("onUpdateAvailable", info.toString());
+            }
+
+            @Override
+            public void onUpToDate(int installedCode, int remoteCode) {
+                callJs("onUpdateNotAvailable",
+                        "المثبَّت: " + installedCode + " • على الخادم: " + remoteCode);
+            }
+
+            @Override
+            public void onError(String message) {
+                // Reported for silent checks too: it is written to the settings
+                // status line only, never as a popup.
+                callJs("onUpdateError", message);
+            }
+        });
+    }
+
+    private void startUpdateDownload() {
+        if (pendingUpdate == null) {
+            callJs("onUpdateError", "لا يوجد تحديث محدَّد.");
+            return;
+        }
+        if (updateManager.isDownloading()) return;
+
+        final String apkUrl = pendingUpdate.optString("apkUrl", "");
+        final String versionName = pendingUpdate.optString("versionName", "");
+        if (apkUrl.isEmpty()) {
+            callJs("onUpdateError", "رابط التحديث غير متوفر.");
+            return;
+        }
+
+        updateManager.downloadAndInstall(apkUrl, versionName, new UpdateManager.DownloadCallback() {
+            @Override
+            public void onProgress(int percent) {
+                webView.evaluateJavascript(
+                        "if (typeof onUpdateProgress === 'function') { onUpdateProgress("
+                                + percent + "); }", null);
+            }
+
+            @Override
+            public void onReady(File apk) {
+                pendingApk = apk;
+                callJs("onUpdateDownloaded", null);
+                installOrRequestPermission();
+            }
+
+            @Override
+            public void onError(String message) {
+                callJs("onUpdateError", message);
+            }
+        });
+    }
+
+    /** Installs the downloaded APK, first asking for the "unknown sources" permission. */
+    private void installOrRequestPermission() {
+        if (pendingApk == null || !pendingApk.exists()) return;
+
+        if (!updateManager.canInstallPackages()) {
+            Toast.makeText(this,
+                    "اسمح لتطبيق ختمتي بتثبيت التحديثات، ثم عد للتطبيق.",
+                    Toast.LENGTH_LONG).show();
+            try {
+                updateManager.requestInstallPermission(this, INSTALL_PERMISSION_REQUEST_CODE);
+            } catch (Exception e) {
+                callJs("onUpdateError", "تعذّر فتح شاشة صلاحية التثبيت.");
+            }
+            return;
+        }
+
+        try {
+            updateManager.install(this, pendingApk);
+        } catch (Exception e) {
+            callJs("onUpdateError", "تعذّر بدء التثبيت.");
+        }
+    }
+
+    /** Calls a JS function with a single optional string argument, if it exists. */
+    private void callJs(String fn, String arg) {
+        final String call = arg == null
+                ? fn + "();"
+                : fn + "(" + JSONObject.quote(arg) + ");";
+        runOnUiThread(() -> webView.evaluateJavascript(
+                "if (typeof " + fn + " === 'function') { " + call + " }", null));
     }
 
     private String findInstalledQuranPackage() {
@@ -459,6 +642,13 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == IMPORT_REQUEST_CODE) {
             if (resultCode == RESULT_OK && data != null && data.getData() != null) {
                 readImport(data.getData());
+            }
+
+        } else if (requestCode == INSTALL_PERMISSION_REQUEST_CODE) {
+            if (updateManager.canInstallPackages()) {
+                installOrRequestPermission();
+            } else {
+                callJs("onUpdateError", "لم يتم منح صلاحية التثبيت، فتعذّر تطبيق التحديث.");
             }
         }
     }

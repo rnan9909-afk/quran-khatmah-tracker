@@ -261,6 +261,10 @@ body {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+    /* sits between the quick-register block and the goals, so it carries a divider */
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .current-page-card .detail-item {
@@ -1918,9 +1922,7 @@ input:checked + .slider:before { background-color: #0A0E07 !important; }
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    margin-bottom: 20px;
-    padding-bottom: 18px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    /* last block in the card now — no trailing divider */
 }
 .goal-glass-box {
     display: flex;
@@ -2287,3 +2289,123 @@ input[type="date"] {
     border-color: rgba(56, 189, 248, 0.32);
 }
 
+
+/* ============================================
+   In-app update dialog
+   ============================================ */
+.update-card {
+    max-width: 350px;
+    text-align: center;
+}
+
+.update-icon {
+    color: var(--primary-color);
+    margin-bottom: 6px;
+}
+
+.update-card .modal-title {
+    margin-bottom: 6px;
+    font-weight: 800;
+}
+
+.update-notes {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+    text-align: right;
+    background: rgba(127, 127, 127, 0.07);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 12px;
+    max-height: 160px;
+    overflow-y: auto;
+    white-space: pre-line;
+}
+
+.update-progress-wrap {
+    margin-top: 14px;
+}
+
+.update-progress-track {
+    width: 100%;
+    height: 8px;
+    border-radius: 99px;
+    background: rgba(127, 127, 127, 0.18);
+    overflow: hidden;
+}
+
+.update-progress-fill {
+    width: 0;
+    height: 100%;
+    border-radius: 99px;
+    background: var(--primary-color);
+    transition: width 0.2s ease;
+}
+
+.update-progress-label {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+/* ============================================
+   Pull to refresh (home tab)
+   ============================================ */
+.ptr-indicator {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -60px);
+}
+
+.ptr-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+/* While the refresh is running the icon spins */
+.ptr-indicator.loading .ptr-circle svg {
+    animation: ptr-spin 0.8s linear infinite;
+}
+
+@keyframes ptr-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Small confirmation toast shown after a refresh */
+.ptr-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 90px;
+    z-index: 70;
+    transform: translate(-50%, 12px);
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+    padding: 9px 16px;
+    border-radius: 99px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-color);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+.ptr-toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
