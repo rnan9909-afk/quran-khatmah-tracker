@@ -1,7 +1,7 @@
 {
-    "versionCode":  36,
-    "versionName":  "5.5",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v5.5/khatmati-5.5.apk",
-    "notes":  "• رسالة التحديث تظهر تلقائياً عند فتح التطبيق أو العودة إليه، دون الحاجة لزر التحقق.",
+    "versionCode":  37,
+    "versionName":  "5.6",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v5.6/khatmati-5.6.apk",
+    "notes":  "• السورة والآية والجزء والحزب صارت مباشرة تحت \"تسجيل سريع\"، فتعرف موضعك في المصحف بمجرد تسجيل وردك دون تمرير.",
     "mandatory":  false
 }
