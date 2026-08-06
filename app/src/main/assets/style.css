@@ -1,3 +1,40 @@
+/* ============================================
+   Thmanyah Serif Text — bundled, not fetched.
+   Four weights so nothing is synthetically bolded, and so the app renders
+   correctly with no connection (the previous webfont came from Google).
+   ============================================ */
+@font-face {
+    font-family: 'Thmanyah';
+    src: url('fonts/thmanyahseriftext-Light.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Thmanyah';
+    src: url('fonts/thmanyahseriftext-Regular.woff2') format('woff2');
+    font-weight: 400 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Thmanyah';
+    src: url('fonts/thmanyahseriftext-Bold.woff2') format('woff2');
+    font-weight: 600 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Thmanyah';
+    src: url('fonts/thmanyahseriftext-Black.woff2') format('woff2');
+    font-weight: 800 900;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* Custom properties for the new Khatmati brand identity matching the mockup style */
 :root {
     --primary-color: #083264;      /* Deep Navy Blue from logo */
@@ -16,7 +53,7 @@
     --shadow-nav: 0 16px 36px rgba(4, 27, 55, 0.25);
     --glow-gold: 0 4px 15px rgba(212, 175, 55, 0.3);
     --glow-green: 0 4px 15px rgba(19, 157, 98, 0.2);
-    --font-main: 'Tajawal', sans-serif;
+    --font-main: 'Thmanyah', 'Tajawal', sans-serif;
     --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
