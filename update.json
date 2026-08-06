@@ -1,5 +1,5 @@
 {
-    "versionCode":  38,
+    "versionCode":  39,
     "versionName":  "5.8",
     "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v5.8/khatmati-5.8.apk",
     "notes":  "• خط جديد للتطبيق بالكامل: خط \"ثمانية\" بأربعة أوزان، أوضح للقراءة اليومية.\n• الخط صار داخل التطبيق نفسه بدل تحميله من الإنترنت، فيظهر صحيحاً حتى بدون اتصال، والتطبيق يفتح أسرع.",
