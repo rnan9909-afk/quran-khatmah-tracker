@@ -1,7 +1,7 @@
 {
-    "versionCode":  37,
-    "versionName":  "5.6",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v5.6/khatmati-5.6.apk",
-    "notes":  "• السورة والآية والجزء والحزب صارت مباشرة تحت \"تسجيل سريع\"، فتعرف موضعك في المصحف بمجرد تسجيل وردك دون تمرير.",
+    "versionCode":  38,
+    "versionName":  "5.8",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v5.8/khatmati-5.8.apk",
+    "notes":  "• خط جديد للتطبيق بالكامل: خط \"ثمانية\" بأربعة أوزان، أوضح للقراءة اليومية.\n• الخط صار داخل التطبيق نفسه بدل تحميله من الإنترنت، فيظهر صحيحاً حتى بدون اتصال، والتطبيق يفتح أسرع.",
     "mandatory":  false
 }
