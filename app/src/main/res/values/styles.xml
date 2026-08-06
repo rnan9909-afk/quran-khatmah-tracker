@@ -13,4 +13,31 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
     </style>
+
+    <!--
+        Quick-adjust sheet launched from the widget: a floating, transparent
+        window so the home screen stays visible behind the dimmed backdrop.
+    -->
+    <style name="Theme.QuranTracker.Sheet" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowAnimationStyle">@style/SheetAnimation</item>
+    </style>
+
+    <style name="SheetAnimation" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/sheet_slide_up</item>
+        <item name="android:windowExitAnimation">@anim/sheet_slide_down</item>
+    </style>
+
+    <!-- Light-on-dark values inside the three scroll wheels. -->
+    <style name="SheetPickerTheme" parent="Theme.AppCompat">
+        <item name="android:textColorPrimary">#F1F4EC</item>
+        <item name="android:textColorSecondary">#8D977F</item>
+        <item name="colorControlNormal">#3AABE83F</item>
+        <item name="colorAccent">#ABE83F</item>
+    </style>
 </resources>

@@ -76,12 +76,30 @@
                 android:value="Floating return-to-app button shown over a Quran app the user opened from within this app." />
         </service>
 
+        <!-- Half-screen sheet opened by tapping the widget -->
+        <activity
+            android:name=".QuickAdjustActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:theme="@style/Theme.QuranTracker.Sheet" />
+
         <!-- Home-screen widget showing khatmah progress -->
         <receiver
             android:name=".QuranProgressWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <!-- Stepper taps on the widget itself -->
+            <intent-filter>
+                <action android:name="com.quran.tracker.widget.SURAH_PREV" />
+                <action android:name="com.quran.tracker.widget.SURAH_NEXT" />
+                <action android:name="com.quran.tracker.widget.PAGE_DEC" />
+                <action android:name="com.quran.tracker.widget.PAGE_INC" />
+                <action android:name="com.quran.tracker.widget.AYAH_DEC" />
+                <action android:name="com.quran.tracker.widget.AYAH_INC" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
