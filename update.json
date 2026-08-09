@@ -1,7 +1,7 @@
 {
-    "versionCode":  47,
-    "versionName":  "6.6",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v6.6/khatmati-6.6.apk",
-    "notes":  "• مسار ثانٍ لتحميل خط المصحف إن فشل الأول.\n• التطبيق صار يقيس الخط المستخدم فعلياً في الرسم، لا مجرد نجاح التحميل، ويكتب النتيجة أسفل الصفحة.",
+    "versionCode":  48,
+    "versionName":  "6.7",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v6.7/khatmati-6.7.apk",
+    "notes":  "• خط المصحف صار بصيغة أساسية لا تحتاج فكّ ضغط، وهو آخر سبب ممكن لفشل ظهوره.\n• إزالة ملفات خطوط غير مستخدمة كانت تزيد حجم التطبيق.",
     "mandatory":  false
 }
