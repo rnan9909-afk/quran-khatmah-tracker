@@ -1,7 +1,7 @@
 {
-    "versionCode":  43,
-    "versionName":  "6.2",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v6.2/khatmati-6.2.apk",
-    "notes":  "• إصلاح علامة نهاية الآية: كانت تظهر دائرة يليها مربع فارغ بدل الرقم. صارت الآن زخرفة مرسومة داخل التطبيق ورقم الآية واضح بداخلها.",
+    "versionCode":  44,
+    "versionName":  "6.3",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v6.3/khatmati-6.3.apk",
+    "notes":  "• حذف الدائرة المتكررة بين الآيات نهائياً. صار الفاصل رقم الآية فقط بلا أي زخرفة.",
     "mandatory":  false
 }
