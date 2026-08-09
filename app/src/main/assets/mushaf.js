@@ -273,24 +273,37 @@ function setupMushaf() {
  */
 function mushafReportFontState() {
     const hint = document.getElementById('mushaf-hint');
-    if (!hint || typeof bundledFontsReady === 'undefined') return;
+    if (!hint) return;
+    // Never return quietly here. If the loader failed to even define itself,
+    // the old code returned and left the default hint on screen — which read
+    // as "the font is fine" and cost several releases of guessing.
+    if (typeof bundledFontsReady === 'undefined') {
+        hint.classList.add('warn');
+        hint.innerText = 'ملف الخطوط لم يُنفَّذ';
+        return;
+    }
 
     // Ask the loader itself. Querying document.fonts.check() instead would be
     // wrong here: it reports false for a face that simply has not been asked
     // for yet, which is the state at this point in startup.
-    bundledFontsReady.then((ok) => {
-        if (ok) {
+    const settle = (registered) => {
+        // Registered is not the same as used. Measure what is actually drawing.
+        const rendering = fontIsRendering('UthmanicHafs');
+        if (registered && rendering) {
             hint.innerText = 'اضغط على أي آية لتحديد موضع توقفك';
             hint.classList.remove('warn');
-            mushafRender();          // repaint now that the real face exists
-        } else {
-            hint.innerText = 'تنبيه: خط المصحف لم يُحمَّل، والعرض بخط بديل';
-            hint.classList.add('warn');
+            mushafRender();          // repaint now that the real face is live
+            return;
         }
-    }).catch(() => {
-        hint.innerText = 'تنبيه: خط المصحف لم يُحمَّل، والعرض بخط بديل';
         hint.classList.add('warn');
-    });
+        hint.innerText = registered
+            ? 'خط المصحف سُجّل ولم يُطبَّق (' + fontLoadStatus + ')'
+            : 'خط المصحف لم يُسجَّل (' + fontLoadStatus + ')';
+    };
+
+    Promise.resolve(bundledFontsReady)
+        .then(settle)
+        .catch(() => settle(false));
 }
 
 /** Opening the tab lands the reader wherever the tracker says they are. */
