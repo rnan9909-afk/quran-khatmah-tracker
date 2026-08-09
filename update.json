@@ -1,7 +1,7 @@
 {
-    "versionCode":  44,
-    "versionName":  "6.3",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v6.3/khatmati-6.3.apk",
-    "notes":  "• حذف الدائرة المتكررة بين الآيات نهائياً. صار الفاصل رقم الآية فقط بلا أي زخرفة.",
+    "versionCode":  45,
+    "versionName":  "6.4",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v6.4/khatmati-6.4.apk",
+    "notes":  "• إصلاح الدائرة الغريبة داخل الكلمات: كانت علامة الصفر المستدير فوق الألف الفارقة (مثل: سمعوا) تُرسم على دائرة منقّطة لأن خط المصحف لم يكن يُحمَّل. صُحّحت طريقة تضمين الخط.\n• إعادة الشكل الدائري حول رقم الآية.\n• إذا تعذّر تحميل خط المصحف لأي سبب، يظهر تنبيه أسفل الصفحة بدل أن يقع الخلل بصمت.",
     "mandatory":  false
 }
