@@ -150,13 +150,25 @@ function setupNavigation() {
     navItems.forEach(item => {
         item.addEventListener('click', () => {
             const targetTab = item.getAttribute('data-tab');
-            
+
+            // The mushaf is a native screen now: the in-WebView tab could never
+            // be made to actually draw with the Uthmani face, so on a device
+            // this hands off to Android.openMushaf() instead of switching tabs.
+            // The WebView tab stays only as a fallback when that bridge is
+            // absent (a desktop preview, for instance) so the feature is not
+            // simply missing there.
+            if (targetTab === 'tab-mushaf'
+                && typeof Android !== 'undefined' && Android.openMushaf) {
+                Android.openMushaf();
+                return;
+            }
+
             navItems.forEach(n => n.classList.remove('active'));
             tabPanes.forEach(p => p.classList.remove('active'));
-            
+
             item.classList.add('active');
             document.getElementById(targetTab).classList.add('active');
-            
+
             // Re-render calendar when calendar tab is active to ensure proper layout sizing
             if (targetTab === 'tab-calendar') {
                 renderCalendar();
@@ -169,6 +181,40 @@ function setupNavigation() {
             }
         });
     });
+}
+
+/**
+ * Called by MainActivity after the native mushaf reader returns a saved
+ * position. Goes through the same recordProgress() a tap inside the app
+ * uses, so a reading saved natively counts identically toward the day's
+ * total, the streak and the goals — then, if an ayah was tapped, steers the
+ * home surah/ayah selectors onto it exactly as mushafSaveProgress() does
+ * for the in-app tab.
+ */
+function applyMushafFromNative(page, surah, ayah) {
+    try {
+        if (!Array.isArray(quranPages) || quranPages.length === 0) return;
+        const p = Math.max(1, Math.min(604, parseInt(page, 10) || 1));
+        recordProgress(p);
+
+        if (surah > 0 && ayah > 0) {
+            surahAyahPage = p;
+            pageSurahsCache = getPageSurahs(p);
+            const idx = pageSurahsCache.findIndex(x => x.surah === surah);
+            selectedSurahIdx = idx >= 0 ? idx : 0;
+            const range = pageSurahsCache[selectedSurahIdx];
+            selectedAyah = range ? Math.min(Math.max(ayah, range.first), range.last) : ayah;
+            updateSurahAyahDisplay();
+            saveStateToStorage();
+        }
+
+        const where = (surah > 0 && ayah > 0)
+            ? `صفحة ${p} • ${SURAH_NAMES[surah - 1]} ${ayah}`
+            : `صفحة ${p}`;
+        showAndroidToast('تم حفظ التقدم — ' + where);
+    } catch (e) {
+        console.error('applyMushafFromNative failed', e);
+    }
 }
 
 // Load Persistent State

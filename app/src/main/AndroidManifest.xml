@@ -76,6 +76,16 @@
                 android:value="Floating return-to-app button shown over a Quran app the user opened from within this app." />
         </service>
 
+        <!-- Native mushaf reader: no WebView, so the Uthmani font is loaded via
+             AssetManager instead of a browser font-loading path that never
+             applied it to drawn text. -->
+        <activity
+            android:name=".MushafReaderActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:theme="@style/Theme.QuranTracker" />
+
         <!-- Home-screen widget showing khatmah progress -->
         <receiver
             android:name=".QuranProgressWidget"

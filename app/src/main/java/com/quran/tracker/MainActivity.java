@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int EXPORT_REQUEST_CODE = 3001;
     private static final int IMPORT_REQUEST_CODE = 3002;
     private static final int INSTALL_PERMISSION_REQUEST_CODE = 3003;
+    private static final int MUSHAF_REQUEST_CODE = 3004;
 
     private String pendingExportJson = null;
 
@@ -253,6 +254,22 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
 
             QuranProgressWidget.refreshAll(mContext);
+        }
+
+        /**
+         * Launch the native mushaf reader.
+         *
+         * The reading itself is not rendered in this WebView: every attempt to
+         * make the Uthmani face apply on this page failed, whether linked,
+         * embedded as a data: URI, or registered via FontFace from an
+         * ArrayBuffer or a blob: URL — the face would register without the
+         * text ever actually being drawn with it. A native screen loads the
+         * same font through AssetManager, a path with no such failure mode.
+         */
+        @JavascriptInterface
+        public void openMushaf() {
+            Intent intent = new Intent(MainActivity.this, MushafReaderActivity.class);
+            startActivityForResult(intent, MUSHAF_REQUEST_CODE);
         }
 
         // ===== Floating button feature =====
@@ -649,6 +666,23 @@ public class MainActivity extends AppCompatActivity {
                 installOrRequestPermission();
             } else {
                 callJs("onUpdateError", "لم يتم منح صلاحية التثبيت، فتعذّر تطبيق التحديث.");
+            }
+
+        } else if (requestCode == MUSHAF_REQUEST_CODE) {
+            if (resultCode == RESULT_OK && data != null) {
+                int page = data.getIntExtra(MushafReaderActivity.EXTRA_RESULT_PAGE, -1);
+                boolean hasAyah = data.getBooleanExtra(MushafReaderActivity.EXTRA_RESULT_HAS_AYAH, false);
+                int surah = data.getIntExtra(MushafReaderActivity.EXTRA_RESULT_SURAH, 0);
+                int ayah = data.getIntExtra(MushafReaderActivity.EXTRA_RESULT_AYAH, 0);
+                if (page > 0) {
+                    // Runs the app's own recordProgress() in the live WebView, so a
+                    // page saved from the native reader counts exactly like one
+                    // logged inside the app — same day's total, same streak.
+                    String js = hasAyah
+                            ? "applyMushafFromNative(" + page + "," + surah + "," + ayah + ")"
+                            : "applyMushafFromNative(" + page + ",0,0)";
+                    webView.post(() -> webView.evaluateJavascript(js, null));
+                }
             }
         }
     }
