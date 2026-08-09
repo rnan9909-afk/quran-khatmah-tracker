@@ -273,26 +273,24 @@ function setupMushaf() {
  */
 function mushafReportFontState() {
     const hint = document.getElementById('mushaf-hint');
-    if (!hint || !document.fonts || !document.fonts.check) return;
+    if (!hint || typeof bundledFontsReady === 'undefined') return;
 
-    const settle = () => {
-        let ok = false;
-        try {
-            ok = document.fonts.check('16px UthmanicHafs');
-        } catch (e) {
-            ok = false;
-        }
-        if (!ok) {
+    // Ask the loader itself. Querying document.fonts.check() instead would be
+    // wrong here: it reports false for a face that simply has not been asked
+    // for yet, which is the state at this point in startup.
+    bundledFontsReady.then((ok) => {
+        if (ok) {
+            hint.innerText = 'اضغط على أي آية لتحديد موضع توقفك';
+            hint.classList.remove('warn');
+            mushafRender();          // repaint now that the real face exists
+        } else {
             hint.innerText = 'تنبيه: خط المصحف لم يُحمَّل، والعرض بخط بديل';
             hint.classList.add('warn');
         }
-    };
-
-    if (document.fonts.ready && document.fonts.ready.then) {
-        document.fonts.ready.then(settle).catch(settle);
-    } else {
-        setTimeout(settle, 1200);
-    }
+    }).catch(() => {
+        hint.innerText = 'تنبيه: خط المصحف لم يُحمَّل، والعرض بخط بديل';
+        hint.classList.add('warn');
+    });
 }
 
 /** Opening the tab lands the reader wherever the tracker says they are. */
