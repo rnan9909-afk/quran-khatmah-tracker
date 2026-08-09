@@ -1,7 +1,7 @@
 {
-    "versionCode":  48,
-    "versionName":  "6.7",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v6.7/khatmati-6.7.apk",
-    "notes":  "• خط المصحف صار بصيغة أساسية لا تحتاج فكّ ضغط، وهو آخر سبب ممكن لفشل ظهوره.\n• إزالة ملفات خطوط غير مستخدمة كانت تزيد حجم التطبيق.",
+    "versionCode":  49,
+    "versionName":  "6.8",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v6.8/khatmati-6.8.apk",
+    "notes":  "• إصلاح جذري: المصحف صار يُعرض بمكوّن أندرويد أصلي بدل متصفح التطبيق، فينتهي اعتماد الخط على قيود المتصفح نهائياً.\n• رقم الآية صار عنصراً واحداً مرسوماً مباشرة، فلا يظهر مكرراً ولا كدائرة فارغة.\n• حجم الخط، والوضع الليلي/النهاري، والتنقل بين الصفحات والسور كما كانت.",
     "mandatory":  false
 }
