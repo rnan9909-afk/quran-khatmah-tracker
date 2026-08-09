@@ -2446,3 +2446,267 @@ input[type="date"] {
     opacity: 1;
     transform: translate(-50%, 0);
 }
+
+/* ============================================
+   Mushaf reader
+   ============================================ */
+
+/* Five tabs now share the bar, so the labels must not wrap. */
+.nav-item span { white-space: nowrap; }
+
+#tab-mushaf.tab-pane.active {
+    display: flex;
+    flex-direction: column;
+    /* Fill the viewport minus the floating nav bar, so the page body is the
+       only thing that scrolls and the toolbar stays put. */
+    height: calc(100vh - 130px);
+}
+
+.mushaf-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.mushaf-loc { display: flex; gap: 6px; flex: 1; min-width: 0; }
+
+.mushaf-jump-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-family: var(--font-main);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.mushaf-jump-btn b { color: var(--accent-color); }
+.mushaf-jump-btn svg { flex-shrink: 0; opacity: 0.5; }
+
+.mushaf-tools { display: flex; gap: 6px; }
+
+.mushaf-tool {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-family: var(--font-main);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.mushaf-tool.on {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
+/* ---------- The page ---------- */
+
+.mushaf-surface {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 22px;
+    padding: 16px 18px 10px;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+}
+
+.mushaf-page-head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 12px;
+}
+
+.mushaf-text {
+    flex: 1;
+    /* Deliberately NOT var(--font-main): the Uthmani text carries rare Quranic
+       marks (small high seen, sajdah, waqf signs) that a general text face may
+       not cover, and a missing glyph in the Quran is not an acceptable
+       trade for a consistent look. The system naskh faces cover them. */
+    font-family: 'Noto Naskh Arabic', 'Traditional Arabic', 'Amiri', 'Scheherazade New', serif;
+    font-size: 1.7rem;          /* replaced inline by the A−/A+ control */
+    line-height: 2.15;
+    text-align: justify;
+    text-align-last: center;
+    color: var(--text-color);
+    word-spacing: 0.05em;
+}
+
+.mushaf-run { margin: 0 0 4px; }
+
+.mushaf-surah-title {
+    margin: 14px 0 6px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--accent-color);
+    background: var(--accent-light);
+    border: 1px solid rgba(19, 157, 98, 0.18);
+}
+
+.mushaf-surah-title:first-child { margin-top: 0; }
+
+.mushaf-basmala {
+    font-family: 'Noto Naskh Arabic', 'Traditional Arabic', 'Amiri', serif;
+    text-align: center;
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.mushaf-ayah {
+    cursor: pointer;
+    border-radius: 6px;
+    /* Keeps a highlight readable when an ayah wraps across lines. */
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.mushaf-ayah.selected {
+    background: rgba(19, 157, 98, 0.16);
+    box-shadow: 0 0 0 1px rgba(19, 157, 98, 0.35);
+}
+
+.mushaf-ayah-num {
+    display: inline-block;
+    min-width: 1.5em;
+    padding: 0 0.15em;
+    font-size: 0.62em;
+    font-weight: 700;
+    color: var(--accent-color);
+    border: 1px solid rgba(19, 157, 98, 0.35);
+    border-radius: 50%;
+    text-align: center;
+    line-height: 1.5;
+    vertical-align: middle;
+}
+
+.mushaf-page-foot {
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding-top: 8px;
+    margin-top: 8px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* ---------- Footer controls ---------- */
+
+.mushaf-footbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.mushaf-nav {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.mushaf-save {
+    flex: 1;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: none;
+    border-radius: 15px;
+    background: var(--accent-color);
+    color: #fff;
+    font-family: var(--font-main);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--glow-green);
+}
+
+.mushaf-hint {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 7px;
+}
+
+/* ---------- Night reading ----------
+   Scoped to the reader only: the rest of the app keeps its own theme, and
+   these override the light-mode variables the surface inherits. */
+
+#tab-mushaf.night .mushaf-surface {
+    background: #10161b;
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+#tab-mushaf.night .mushaf-text { color: #E8EDE6; }
+#tab-mushaf.night .mushaf-page-head,
+#tab-mushaf.night .mushaf-page-foot { color: #8c968d; border-color: rgba(255, 255, 255, 0.08); }
+#tab-mushaf.night .mushaf-basmala { color: #9aa79b; }
+
+#tab-mushaf.night .mushaf-surah-title {
+    color: #7BD8A6;
+    background: rgba(123, 216, 166, 0.10);
+    border-color: rgba(123, 216, 166, 0.22);
+}
+
+#tab-mushaf.night .mushaf-ayah-num {
+    color: #7BD8A6;
+    border-color: rgba(123, 216, 166, 0.4);
+}
+
+#tab-mushaf.night .mushaf-ayah.selected {
+    background: rgba(123, 216, 166, 0.18);
+    box-shadow: 0 0 0 1px rgba(123, 216, 166, 0.45);
+}
+
+#tab-mushaf.night .mushaf-jump-btn,
+#tab-mushaf.night .mushaf-tool,
+#tab-mushaf.night .mushaf-nav {
+    background: #10161b;
+    border-color: rgba(255, 255, 255, 0.10);
+    color: #E8EDE6;
+}
+
+#tab-mushaf.night .mushaf-tool.on {
+    background: #7BD8A6;
+    border-color: #7BD8A6;
+    color: #0b1016;
+}

@@ -652,6 +652,55 @@
                 </div>
             </section>
 
+            <!-- ===== Mushaf ===== -->
+            <section id="tab-mushaf" class="tab-pane">
+                <div class="mushaf-toolbar">
+                    <div class="mushaf-loc">
+                        <button class="mushaf-jump-btn ripple" id="mushaf-pick-surah">
+                            <span id="mushaf-surah-label">الفاتحة</span>
+                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <button class="mushaf-jump-btn ripple" id="mushaf-pick-page">
+                            <span>صفحة <b id="mushaf-page-label">1</b></span>
+                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                    </div>
+                    <div class="mushaf-tools">
+                        <button class="mushaf-tool ripple" id="mushaf-font-dec" aria-label="تصغير الخط">أ−</button>
+                        <button class="mushaf-tool ripple" id="mushaf-font-inc" aria-label="تكبير الخط">أ+</button>
+                        <button class="mushaf-tool ripple" id="mushaf-night-toggle" aria-label="القراءة الليلية">
+                            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mushaf-surface" id="mushaf-surface">
+                    <div class="mushaf-page-head" id="mushaf-page-head"></div>
+                    <div class="mushaf-text" id="mushaf-text"></div>
+                    <div class="mushaf-page-foot"><span id="mushaf-page-foot-num">1</span></div>
+                </div>
+
+                <div class="mushaf-footbar">
+                    <button class="mushaf-nav ripple" id="mushaf-prev" aria-label="الصفحة السابقة">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <button class="mushaf-save ripple" id="mushaf-save">
+                        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/>
+                            <polyline points="7 3 7 8 15 8"/>
+                        </svg>
+                        <span id="mushaf-save-label">حفظ التقدم</span>
+                    </button>
+                    <button class="mushaf-nav ripple" id="mushaf-next" aria-label="الصفحة التالية">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                </div>
+                <div class="mushaf-hint" id="mushaf-hint">اضغط على أي آية لتحديد موضع توقفك</div>
+            </section>
+
         </main>
 
         <!-- Bottom Navigation Bar (5 Items) -->
@@ -681,6 +730,13 @@
                     <path d="M12 2a6 6 0 0 0-6 6v5a6 6 0 0 0 12 0V8a6 6 0 0 0-6-6Z"/>
                 </svg>
                 <span>الختمات</span>
+            </button>
+            <button class="nav-item" data-tab="tab-mushaf">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 6.5C10.5 5 8.5 4.5 6 4.5H3v14h3c2.5 0 4.5.5 6 2 1.5-1.5 3.5-2 6-2h3v-14h-3c-2.5 0-4.5.5-6 2Z"/>
+                    <path d="M12 6.5v13"/>
+                </svg>
+                <span>المصحف</span>
             </button>
             <button class="nav-item" data-tab="tab-settings">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -865,6 +921,8 @@
 
     <!-- Application JavaScript -->
     <script src="quran_pages.js"></script>
+    <script src="quran_text.js"></script>
     <script src="app.js"></script>
+    <script src="mushaf.js"></script>
 </body>
 </html>

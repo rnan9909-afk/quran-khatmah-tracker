@@ -161,6 +161,10 @@ function setupNavigation() {
             if (targetTab === 'tab-calendar') {
                 renderCalendar();
             }
+            // The mushaf opens on whatever page the tracker is currently at.
+            if (targetTab === 'tab-mushaf' && typeof openMushafTab === 'function') {
+                openMushafTab();
+            }
         });
     });
 }
