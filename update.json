@@ -1,7 +1,7 @@
 {
-    "versionCode":  46,
-    "versionName":  "6.5",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v6.5/khatmati-6.5.apk",
-    "notes":  "• إصلاح جذري لتحميل الخطوط: تبيّن أن تعريف الخطوط في ملف التنسيق لا يعمل في هذا النوع من الشاشات إطلاقاً. صار التطبيق يحمّل الخطوط من الذاكرة مباشرة.\n• بهذا يظهر خط المصحف فعلياً، وتختفي الدوائر المنقّطة التي كانت تظهر فوق الألف الفارقة في مثل: سمعوا، دعوا، قالوا.\n• خط الواجهة كذلك صار يظهر لأول مرة.",
+    "versionCode":  47,
+    "versionName":  "6.6",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v6.6/khatmati-6.6.apk",
+    "notes":  "• مسار ثانٍ لتحميل خط المصحف إن فشل الأول.\n• التطبيق صار يقيس الخط المستخدم فعلياً في الرسم، لا مجرد نجاح التحميل، ويكتب النتيجة أسفل الصفحة.",
     "mandatory":  false
 }
