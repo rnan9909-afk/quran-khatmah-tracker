@@ -151,17 +151,6 @@ function setupNavigation() {
         item.addEventListener('click', () => {
             const targetTab = item.getAttribute('data-tab');
 
-            // "المصحف" is not a tab to switch to any more — every attempt to
-            // render the Uthmani text ourselves (in the WebView, then natively)
-            // ran into a font problem of one kind or another. A dedicated
-            // Quran app already gets the font, the tajweed colouring and the
-            // sajdah marks right, and most readers already have one installed,
-            // so this hands the reading off to it instead.
-            if (targetTab === 'tab-mushaf') {
-                openLinkedQuranApp();
-                return;
-            }
-
             navItems.forEach(n => n.classList.remove('active'));
             tabPanes.forEach(p => p.classList.remove('active'));
 
@@ -174,64 +163,6 @@ function setupNavigation() {
             }
         });
     });
-}
-
-/**
- * "المصحف" tab: first tap links a Quran app, every tap after that opens it
- * directly. The floating return button (already built for this app) rides
- * along, so leaving that app comes back here with one tap.
- */
-function openLinkedQuranApp() {
-    if (typeof Android === 'undefined' || !Android.launchQuranWithFloatingButton) {
-        showAndroidToast('هذه الميزة متاحة داخل التطبيق فقط');
-        return;
-    }
-
-    const linked = Android.getSelectedQuranApp && Android.getSelectedQuranApp();
-    if (linked) {
-        Android.launchQuranWithFloatingButton(currentPage);
-        return;
-    }
-
-    if (!Android.getInstalledApps) {
-        Android.launchQuranWithFloatingButton(currentPage); // falls back to auto-detection
-        return;
-    }
-
-    let apps;
-    try {
-        apps = JSON.parse(Android.getInstalledApps());
-    } catch (e) {
-        apps = [];
-    }
-    if (!apps.length) {
-        showAndroidToast('لم يتم العثور على تطبيقات لربطها');
-        return;
-    }
-
-    const items = apps.map(a => ({ value: a.pkg, label: a.label }));
-    openPicker('اختر تطبيق المصحف لربطه', items, '', (pkg) => {
-        if (Android.setSelectedQuranApp) Android.setSelectedQuranApp(pkg);
-        if (elQuranAppSelect) elQuranAppSelect.value = pkg; // keep Settings in sync
-        Android.launchQuranWithFloatingButton(currentPage);
-    });
-}
-
-/**
- * Called by MainActivity when the floating return button brings the user
- * back from the linked Quran app. There is no way to read that app's own
- * position, so this simply asks for the page reached; recordProgress() then
- * makes it count exactly like a manual update on the home card.
- */
-function promptSaveAfterExternalReading() {
-    const modal = document.getElementById('modal-save-progress');
-    const input = document.getElementById('input-save-progress-page');
-    const err = document.getElementById('save-progress-error-msg');
-    if (!modal || !input) return;
-    input.value = '';
-    if (err) err.style.display = 'none';
-    modal.classList.add('open');
-    setTimeout(() => input.focus(), 200);
 }
 
 // Load Persistent State
@@ -588,35 +519,14 @@ function setupEventListeners() {
         });
     }
 
-    // Floating Quran Button tap -> same link-or-launch flow as the المصحف tab
+    // Floating Quran Button tap -> open the Quran app with the floating return button
     if (elFloatingQuranBtn) {
-        elFloatingQuranBtn.addEventListener('click', openLinkedQuranApp);
-    }
-
-    // "أين توقفت؟" modal: shown by promptSaveAfterExternalReading() when the
-    // floating return button brings the user back from the Quran app.
-    const elSaveProgressModal = document.getElementById('modal-save-progress');
-    const elSaveProgressInput = document.getElementById('input-save-progress-page');
-    const elSaveProgressError = document.getElementById('save-progress-error-msg');
-    const elBtnCloseSaveProgress = document.getElementById('btn-close-save-progress-modal');
-    const elBtnConfirmSaveProgress = document.getElementById('btn-save-progress-confirm');
-
-    if (elBtnCloseSaveProgress) {
-        elBtnCloseSaveProgress.addEventListener('click', () => {
-            elSaveProgressModal.classList.remove('open');
-        });
-    }
-    if (elBtnConfirmSaveProgress) {
-        elBtnConfirmSaveProgress.addEventListener('click', () => {
-            const val = parseInt(elSaveProgressInput.value, 10);
-            if (isNaN(val) || val < 1 || val > 604) {
-                if (elSaveProgressError) elSaveProgressError.style.display = 'block';
-                return;
+        elFloatingQuranBtn.addEventListener('click', () => {
+            if (typeof Android !== 'undefined' && Android.launchQuranWithFloatingButton) {
+                Android.launchQuranWithFloatingButton(currentPage);
+            } else {
+                showAndroidToast("هذه الميزة متاحة داخل التطبيق فقط");
             }
-            if (elSaveProgressError) elSaveProgressError.style.display = 'none';
-            recordProgress(val);
-            elSaveProgressModal.classList.remove('open');
-            showAndroidToast(`تم حفظ التقدم — صفحة ${val}`);
         });
     }
 

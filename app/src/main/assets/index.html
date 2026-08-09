@@ -654,7 +654,7 @@
 
         </main>
 
-        <!-- Bottom Navigation Bar (5 Items) -->
+        <!-- Bottom Navigation Bar (4 Items) -->
         <nav class="bottom-nav">
             <button class="nav-item active" data-tab="tab-home">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -681,13 +681,6 @@
                     <path d="M12 2a6 6 0 0 0-6 6v5a6 6 0 0 0 12 0V8a6 6 0 0 0-6-6Z"/>
                 </svg>
                 <span>الختمات</span>
-            </button>
-            <button class="nav-item" data-tab="tab-mushaf">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 6.5C10.5 5 8.5 4.5 6 4.5H3v14h3c2.5 0 4.5.5 6 2 1.5-1.5 3.5-2 6-2h3v-14h-3c-2.5 0-4.5.5-6 2Z"/>
-                    <path d="M12 6.5v13"/>
-                </svg>
-                <span>المصحف</span>
             </button>
             <button class="nav-item" data-tab="tab-settings">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -741,28 +734,6 @@
                 <div class="modal-actions">
                     <button class="btn btn-secondary" id="btn-close-goal-modal">إلغاء</button>
                     <button class="btn btn-primary" id="btn-save-goal">حفظ</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal 2b: Save progress after reading in the linked Quran app.
-             Reading itself happens in that app now, not here, so this is the
-             one thing we still need from the user afterward: which page they
-             reached. -->
-        <div class="modal-overlay" id="modal-save-progress">
-            <div class="modal-card">
-                <div class="modal-title">أين توقفت؟</div>
-                <div class="modal-body">
-                    <p class="modal-desc">حدّث رقم الصفحة التي وصلت إليها في تطبيق المصحف:</p>
-                    <div class="input-container">
-                        <input type="number" id="input-save-progress-page" min="1" max="604" placeholder="رقم الصفحة">
-                        <span class="input-suffix">صفحة</span>
-                    </div>
-                    <div class="error-msg" id="save-progress-error-msg">أدخل رقم صفحة صحيح بين ١ و٦٠٤</div>
-                </div>
-                <div class="modal-actions">
-                    <button class="btn btn-secondary" id="btn-close-save-progress-modal">لاحقاً</button>
-                    <button class="btn btn-primary" id="btn-save-progress-confirm">حفظ</button>
                 </div>
             </div>
         </div>

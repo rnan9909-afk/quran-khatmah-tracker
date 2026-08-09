@@ -76,11 +76,6 @@ public class MainActivity extends AppCompatActivity {
 
     private WebView webView;
 
-    /** Set once the page has actually loaded — evaluateJavascript before this is a silent no-op. */
-    private boolean webViewReady = false;
-    /** True from the moment a return-from-Quran-app intent arrives until the JS prompt fires. */
-    private boolean pendingQuranReturnPrompt = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,8 +108,6 @@ public class MainActivity extends AppCompatActivity {
                 super.onPageFinished(view, url);
                 // Silent update check once the UI is ready (throttled, see below).
                 maybeCheckForUpdateSilently();
-                webViewReady = true;
-                flushPendingQuranReturnPrompt();
             }
         });
         webView.setWebChromeClient(new WebChromeClient());
@@ -122,41 +115,6 @@ public class MainActivity extends AppCompatActivity {
 
         webView.clearCache(true);
         webView.loadUrl("file:///android_asset/index.html");
-
-        handleIncomingIntent(getIntent());
-    }
-
-    /**
-     * launchMode is singleTask, so returning here while already running (the
-     * floating button's case, almost always) arrives here rather than in
-     * onCreate.
-     */
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        handleIncomingIntent(intent);
-    }
-
-    /**
-     * There is no API to read another app's current page, so the floating
-     * return button marks its intent instead, and this turns that into a
-     * one-shot prompt asking the reader directly. Deferred until the WebView
-     * has actually finished loading — see {@link #flushPendingQuranReturnPrompt}
-     * — since evaluateJavascript before that is a silent no-op, not a queued call.
-     */
-    private void handleIncomingIntent(Intent intent) {
-        if (intent != null && intent.getBooleanExtra(FloatingButtonService.EXTRA_FROM_QURAN_APP, false)) {
-            pendingQuranReturnPrompt = true;
-            intent.removeExtra(FloatingButtonService.EXTRA_FROM_QURAN_APP);
-        }
-    }
-
-    private void flushPendingQuranReturnPrompt() {
-        if (pendingQuranReturnPrompt && webViewReady) {
-            pendingQuranReturnPrompt = false;
-            callJs("promptSaveAfterExternalReading", null);
-        }
     }
 
     @Override
@@ -165,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
         // Once the user is back inside ختمتي, the floating return button is no
         // longer needed (covers returning via the button, Back, or Recents).
         stopService(new Intent(this, FloatingButtonService.class));
-        flushPendingQuranReturnPrompt();
 
         // Opening the app usually resumes the existing activity instead of
         // creating it, so onPageFinished never fires again — check here too.

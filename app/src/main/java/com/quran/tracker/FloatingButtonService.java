@@ -261,20 +261,11 @@ public class FloatingButtonService extends Service {
         }
     }
 
-    /**
-     * Marks the return intent so MainActivity knows to ask "أين توقفت؟" once
-     * it is back in front. There is no cross-app API to read what page the
-     * Quran app was showing, so asking the reader directly is the only
-     * reliable source for it.
-     */
-    static final String EXTRA_FROM_QURAN_APP = "from_quran_app";
-
     private void returnToApp() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra(EXTRA_FROM_QURAN_APP, true);
         startActivity(intent);
         stopSelf();
     }
