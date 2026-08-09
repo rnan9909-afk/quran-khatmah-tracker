@@ -108,10 +108,19 @@ function mushafRender() {
             && mushafSelected.ayah === item.ayah) {
             span.classList.add('selected');
         }
-        // U+06DD END OF AYAH takes the following digits inside its ornament,
-        // so the mushaf font draws the real marker — no CSS circle needed.
-        span.appendChild(
-            document.createTextNode(item.text + ' ۝' + toArabicDigits(item.ayah) + ' '));
+        span.appendChild(document.createTextNode(item.text + ' '));
+
+        // The ornament is drawn by CSS, not by the font. U+06DD is meant to
+        // swallow the digits that follow it into a single marker glyph, but
+        // when that shaping does not happen the renderer draws the ring and
+        // then a dotted placeholder box where the number should be — which is
+        // exactly what appeared on screen. Plain digits in our own ornament
+        // cannot fail that way, whichever font ends up active.
+        const mark = document.createElement('span');
+        mark.className = 'mushaf-ayah-mark';
+        mark.innerText = toArabicDigits(item.ayah);
+        span.appendChild(mark);
+        span.appendChild(document.createTextNode(' '));
         run.appendChild(span);
     });
 
