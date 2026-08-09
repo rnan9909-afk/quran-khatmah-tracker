@@ -161,7 +161,9 @@ function setupNavigation() {
             if (targetTab === 'tab-calendar') {
                 renderCalendar();
             }
-            // The mushaf opens on whatever page the tracker is currently at.
+            // The mushaf reads full-screen: the app header steps aside and only
+            // the floating nav bar stays. Every other tab restores the chrome.
+            document.body.classList.toggle('reading', targetTab === 'tab-mushaf');
             if (targetTab === 'tab-mushaf' && typeof openMushafTab === 'function') {
                 openMushafTab();
             }

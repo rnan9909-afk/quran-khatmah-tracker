@@ -57,9 +57,20 @@ function mushafRender() {
     const ayahs = mushafPageAyahs(mushafPage);
     const info = quranPages[mushafPage - 1] || {};
 
+    // Running head in mushaf order: juz on one side, page in the middle,
+    // surah on the other — the same three marks a printed page carries.
     if (head) {
-        head.innerHTML = '<span>الجزء ' + (info.juz || 1) + '</span>'
-            + '<span>الحزب ' + (info.hizb || 1) + '</span>';
+        const surahNo = (ayahs[0] && ayahs[0].surah)
+            || info.surah_number || 1;
+        head.innerHTML = '';
+        const part = (txt) => {
+            const el = document.createElement('span');
+            el.innerText = txt;
+            head.appendChild(el);
+        };
+        part('الجزء ' + toArabicDigits(info.juz || 1));
+        part(toArabicDigits(mushafPage));
+        part(toArabicDigits(surahNo) + ' ' + (SURAH_NAMES[surahNo - 1] || ''));
     }
 
     body.innerHTML = '';
@@ -95,14 +106,10 @@ function mushafRender() {
             && mushafSelected.ayah === item.ayah) {
             span.classList.add('selected');
         }
-        // Ayah text is data, not markup — build it as text and keep the
-        // number marker as the only element inside.
-        span.appendChild(document.createTextNode(item.text + ' '));
-        const num = document.createElement('span');
-        num.className = 'mushaf-ayah-num';
-        num.innerText = toArabicDigits(item.ayah);
-        span.appendChild(num);
-        span.appendChild(document.createTextNode(' '));
+        // U+06DD END OF AYAH takes the following digits inside its ornament,
+        // so the mushaf font draws the real marker — no CSS circle needed.
+        span.appendChild(
+            document.createTextNode(item.text + ' ۝' + toArabicDigits(item.ayah) + ' '));
         run.appendChild(span);
     });
 
@@ -111,8 +118,6 @@ function mushafRender() {
     if (lbl) lbl.innerText = SURAH_NAMES[surahHere - 1] || '';
     const pg = document.getElementById('mushaf-page-label');
     if (pg) pg.innerText = mushafPage;
-    const foot = document.getElementById('mushaf-page-foot-num');
-    if (foot) foot.innerText = toArabicDigits(mushafPage);
 
     mushafUpdateSaveLabel();
 }
