@@ -259,6 +259,40 @@ function setupMushaf() {
 
     mushafApplyFont();
     mushafApplyNight();
+    mushafReportFontState();
+}
+
+/**
+ * Say out loud whether the mushaf font actually loaded.
+ *
+ * When it does not, the page still renders — but marks that sit on a letter,
+ * like the small rounded zero over a silent alef, fall back to being drawn on
+ * a dotted circle of their own. That looks like a stray ring in the text and
+ * is easy to mistake for a bug in the text itself. A failure that announces
+ * itself beats one that has to be guessed at from a screenshot.
+ */
+function mushafReportFontState() {
+    const hint = document.getElementById('mushaf-hint');
+    if (!hint || !document.fonts || !document.fonts.check) return;
+
+    const settle = () => {
+        let ok = false;
+        try {
+            ok = document.fonts.check('16px UthmanicHafs');
+        } catch (e) {
+            ok = false;
+        }
+        if (!ok) {
+            hint.innerText = 'تنبيه: خط المصحف لم يُحمَّل، والعرض بخط بديل';
+            hint.classList.add('warn');
+        }
+    };
+
+    if (document.fonts.ready && document.fonts.ready.then) {
+        document.fonts.ready.then(settle).catch(settle);
+    } else {
+        setTimeout(settle, 1200);
+    }
 }
 
 /** Opening the tab lands the reader wherever the tracker says they are. */

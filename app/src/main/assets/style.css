@@ -2675,17 +2675,28 @@ body.reading .floating-quran-btn { display: none !important; }
 }
 
 /* ---------- Ayah marker ----------
-   No ornament. The drawn rosette read as a dotted ring on screen and the
-   U+06DD character before it left a placeholder box, so both are gone: the
-   ayah number is plain digits in the UI font, which nothing can fail to
-   render. It stays because it is how a reader finds their place — and how
-   the tap-to-select target is labelled. */
+   A plain bordered ring drawn by the box model. Two earlier attempts failed
+   on this device — U+06DD left a placeholder box, and an SVG mask rendered as
+   dots — so nothing here depends on font shaping or mask support. The digits
+   come from the UI font, which certainly has them. */
 .mushaf-ayah-mark {
     display: inline-block;
-    margin: 0 0.25em;
+    box-sizing: border-box;
+    width: 1.9em;
+    height: 1.9em;
+    line-height: 1.75em;
+    margin: 0 0.2em;
+    text-align: center;
+    vertical-align: -0.42em;
+    border: 1px solid var(--mushaf-accent);
+    border-radius: 50%;
     font-family: var(--font-main);
-    font-size: 0.44em;
+    font-size: 0.42em;
     font-weight: 700;
     color: var(--mushaf-accent);
-    vertical-align: 0.15em;
+}
+
+.mushaf-hint.warn {
+    color: #E8A33D;
+    font-weight: 700;
 }
