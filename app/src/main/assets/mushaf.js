@@ -20,7 +20,9 @@ let mushafFontStep = 3;        // index into MUSHAF_FONT_SIZES
 let mushafNight = false;
 let mushafBuilt = false;
 
-const MUSHAF_FONT_SIZES = [1.30, 1.50, 1.70, 1.95, 2.20, 2.50, 2.85]; // rem
+// Step 3 is the default. Sized so a line carries enough words that
+// justification does not have to stretch the gaps to fill it.
+const MUSHAF_FONT_SIZES = [1.05, 1.20, 1.35, 1.55, 1.80, 2.05, 2.35]; // rem
 
 /** Every ayah printed on a page, in order. */
 function mushafPageAyahs(page) {

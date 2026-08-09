@@ -3,38 +3,6 @@
    Four weights so nothing is synthetically bolded, and so the app renders
    correctly with no connection (the previous webfont came from Google).
    ============================================ */
-@font-face {
-    font-family: 'Thmanyah';
-    src: url('fonts/thmanyahseriftext-Light.woff2') format('woff2');
-    font-weight: 300;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Thmanyah';
-    src: url('fonts/thmanyahseriftext-Regular.woff2') format('woff2');
-    font-weight: 400 500;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Thmanyah';
-    src: url('fonts/thmanyahseriftext-Bold.woff2') format('woff2');
-    font-weight: 600 700;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Thmanyah';
-    src: url('fonts/thmanyahseriftext-Black.woff2') format('woff2');
-    font-weight: 800 900;
-    font-style: normal;
-    font-display: swap;
-}
-
 /* Custom properties for the new Khatmati brand identity matching the mockup style */
 :root {
     --primary-color: #083264;      /* Deep Navy Blue from logo */
@@ -2456,14 +2424,6 @@ input[type="date"] {
    use. It covers every codepoint in the text — including the waqf and sajdah
    marks a general Arabic font drops — and draws U+06DD as the real ayah
    ornament, so the ayah number needs no styling of its own. */
-@font-face {
-    font-family: 'UthmanicHafs';
-    src: url('fonts/UthmanicHafs.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
 /* Five tabs now share the bar, so the labels must not wrap. */
 .nav-item span { white-space: nowrap; }
 
@@ -2597,11 +2557,19 @@ body.reading .app-content {
 .mushaf-text {
     flex: 1;
     font-family: 'UthmanicHafs', 'Noto Naskh Arabic', 'Traditional Arabic', serif;
-    font-size: 1.6rem;          /* replaced inline by the أ− / أ+ control */
-    line-height: 2.4;
+    font-size: 1.35rem;         /* replaced inline by the أ− / أ+ control */
+    line-height: 2.0;
     text-align: justify;
     text-align-last: center;
     color: var(--mushaf-ink);
+}
+
+/* Justification stretches the gaps between words; at a large size, with few
+   words on a line, that reads as the text falling apart. Capping the stretch
+   keeps the lines even the way a printed page does. */
+.mushaf-run {
+    text-justify: inter-word;
+    word-spacing: normal;
 }
 
 .mushaf-run { margin: 0 0 2px; }
@@ -2667,6 +2635,7 @@ body.reading .app-content {
     cursor: pointer;
 }
 
+/* Glass, in the app's own accent rather than a solid slab of green. */
 .mushaf-save {
     flex: 1;
     height: 44px;
@@ -2674,15 +2643,27 @@ body.reading .app-content {
     align-items: center;
     justify-content: center;
     gap: 7px;
-    border: none;
     border-radius: 14px;
-    background: var(--mushaf-accent);
-    color: var(--mushaf-bg);
+    background: color-mix(in srgb, var(--accent-color) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent-color) 45%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    color: var(--accent-color);
     font-family: var(--font-main);
     font-size: 0.88rem;
     font-weight: 700;
     cursor: pointer;
 }
+
+#tab-mushaf.night .mushaf-save {
+    background: color-mix(in srgb, var(--mushaf-accent) 14%, transparent);
+    border-color: color-mix(in srgb, var(--mushaf-accent) 40%, transparent);
+    color: var(--mushaf-accent);
+}
+
+/* The floating "القرآن" shortcut opens an external Quran app — pointless on
+   top of the reader, where it also covered the save button. */
+body.reading .floating-quran-btn { display: none !important; }
 
 .mushaf-hint {
     font-family: var(--font-main);
