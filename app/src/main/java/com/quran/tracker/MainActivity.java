@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int EXPORT_REQUEST_CODE = 3001;
     private static final int IMPORT_REQUEST_CODE = 3002;
     private static final int INSTALL_PERMISSION_REQUEST_CODE = 3003;
-    private static final int MUSHAF_REQUEST_CODE = 3004;
 
     private String pendingExportJson = null;
 
@@ -76,6 +75,11 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private WebView webView;
+
+    /** Set once the page has actually loaded — evaluateJavascript before this is a silent no-op. */
+    private boolean webViewReady = false;
+    /** True from the moment a return-from-Quran-app intent arrives until the JS prompt fires. */
+    private boolean pendingQuranReturnPrompt = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
                 super.onPageFinished(view, url);
                 // Silent update check once the UI is ready (throttled, see below).
                 maybeCheckForUpdateSilently();
+                webViewReady = true;
+                flushPendingQuranReturnPrompt();
             }
         });
         webView.setWebChromeClient(new WebChromeClient());
@@ -116,6 +122,41 @@ public class MainActivity extends AppCompatActivity {
 
         webView.clearCache(true);
         webView.loadUrl("file:///android_asset/index.html");
+
+        handleIncomingIntent(getIntent());
+    }
+
+    /**
+     * launchMode is singleTask, so returning here while already running (the
+     * floating button's case, almost always) arrives here rather than in
+     * onCreate.
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIncomingIntent(intent);
+    }
+
+    /**
+     * There is no API to read another app's current page, so the floating
+     * return button marks its intent instead, and this turns that into a
+     * one-shot prompt asking the reader directly. Deferred until the WebView
+     * has actually finished loading — see {@link #flushPendingQuranReturnPrompt}
+     * — since evaluateJavascript before that is a silent no-op, not a queued call.
+     */
+    private void handleIncomingIntent(Intent intent) {
+        if (intent != null && intent.getBooleanExtra(FloatingButtonService.EXTRA_FROM_QURAN_APP, false)) {
+            pendingQuranReturnPrompt = true;
+            intent.removeExtra(FloatingButtonService.EXTRA_FROM_QURAN_APP);
+        }
+    }
+
+    private void flushPendingQuranReturnPrompt() {
+        if (pendingQuranReturnPrompt && webViewReady) {
+            pendingQuranReturnPrompt = false;
+            callJs("promptSaveAfterExternalReading", null);
+        }
     }
 
     @Override
@@ -124,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
         // Once the user is back inside ختمتي, the floating return button is no
         // longer needed (covers returning via the button, Back, or Recents).
         stopService(new Intent(this, FloatingButtonService.class));
+        flushPendingQuranReturnPrompt();
 
         // Opening the app usually resumes the existing activity instead of
         // creating it, so onPageFinished never fires again — check here too.
@@ -254,22 +296,6 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
 
             QuranProgressWidget.refreshAll(mContext);
-        }
-
-        /**
-         * Launch the native mushaf reader.
-         *
-         * The reading itself is not rendered in this WebView: every attempt to
-         * make the Uthmani face apply on this page failed, whether linked,
-         * embedded as a data: URI, or registered via FontFace from an
-         * ArrayBuffer or a blob: URL — the face would register without the
-         * text ever actually being drawn with it. A native screen loads the
-         * same font through AssetManager, a path with no such failure mode.
-         */
-        @JavascriptInterface
-        public void openMushaf() {
-            Intent intent = new Intent(MainActivity.this, MushafReaderActivity.class);
-            startActivityForResult(intent, MUSHAF_REQUEST_CODE);
         }
 
         // ===== Floating button feature =====
@@ -666,23 +692,6 @@ public class MainActivity extends AppCompatActivity {
                 installOrRequestPermission();
             } else {
                 callJs("onUpdateError", "لم يتم منح صلاحية التثبيت، فتعذّر تطبيق التحديث.");
-            }
-
-        } else if (requestCode == MUSHAF_REQUEST_CODE) {
-            if (resultCode == RESULT_OK && data != null) {
-                int page = data.getIntExtra(MushafReaderActivity.EXTRA_RESULT_PAGE, -1);
-                boolean hasAyah = data.getBooleanExtra(MushafReaderActivity.EXTRA_RESULT_HAS_AYAH, false);
-                int surah = data.getIntExtra(MushafReaderActivity.EXTRA_RESULT_SURAH, 0);
-                int ayah = data.getIntExtra(MushafReaderActivity.EXTRA_RESULT_AYAH, 0);
-                if (page > 0) {
-                    // Runs the app's own recordProgress() in the live WebView, so a
-                    // page saved from the native reader counts exactly like one
-                    // logged inside the app — same day's total, same streak.
-                    String js = hasAyah
-                            ? "applyMushafFromNative(" + page + "," + surah + "," + ayah + ")"
-                            : "applyMushafFromNative(" + page + ",0,0)";
-                    webView.post(() -> webView.evaluateJavascript(js, null));
-                }
             }
         }
     }

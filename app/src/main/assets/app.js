@@ -151,15 +151,14 @@ function setupNavigation() {
         item.addEventListener('click', () => {
             const targetTab = item.getAttribute('data-tab');
 
-            // The mushaf is a native screen now: the in-WebView tab could never
-            // be made to actually draw with the Uthmani face, so on a device
-            // this hands off to Android.openMushaf() instead of switching tabs.
-            // The WebView tab stays only as a fallback when that bridge is
-            // absent (a desktop preview, for instance) so the feature is not
-            // simply missing there.
-            if (targetTab === 'tab-mushaf'
-                && typeof Android !== 'undefined' && Android.openMushaf) {
-                Android.openMushaf();
+            // "المصحف" is not a tab to switch to any more — every attempt to
+            // render the Uthmani text ourselves (in the WebView, then natively)
+            // ran into a font problem of one kind or another. A dedicated
+            // Quran app already gets the font, the tajweed colouring and the
+            // sajdah marks right, and most readers already have one installed,
+            // so this hands the reading off to it instead.
+            if (targetTab === 'tab-mushaf') {
+                openLinkedQuranApp();
                 return;
             }
 
@@ -173,48 +172,66 @@ function setupNavigation() {
             if (targetTab === 'tab-calendar') {
                 renderCalendar();
             }
-            // The mushaf reads full-screen: the app header steps aside and only
-            // the floating nav bar stays. Every other tab restores the chrome.
-            document.body.classList.toggle('reading', targetTab === 'tab-mushaf');
-            if (targetTab === 'tab-mushaf' && typeof openMushafTab === 'function') {
-                openMushafTab();
-            }
         });
     });
 }
 
 /**
- * Called by MainActivity after the native mushaf reader returns a saved
- * position. Goes through the same recordProgress() a tap inside the app
- * uses, so a reading saved natively counts identically toward the day's
- * total, the streak and the goals — then, if an ayah was tapped, steers the
- * home surah/ayah selectors onto it exactly as mushafSaveProgress() does
- * for the in-app tab.
+ * "المصحف" tab: first tap links a Quran app, every tap after that opens it
+ * directly. The floating return button (already built for this app) rides
+ * along, so leaving that app comes back here with one tap.
  */
-function applyMushafFromNative(page, surah, ayah) {
-    try {
-        if (!Array.isArray(quranPages) || quranPages.length === 0) return;
-        const p = Math.max(1, Math.min(604, parseInt(page, 10) || 1));
-        recordProgress(p);
-
-        if (surah > 0 && ayah > 0) {
-            surahAyahPage = p;
-            pageSurahsCache = getPageSurahs(p);
-            const idx = pageSurahsCache.findIndex(x => x.surah === surah);
-            selectedSurahIdx = idx >= 0 ? idx : 0;
-            const range = pageSurahsCache[selectedSurahIdx];
-            selectedAyah = range ? Math.min(Math.max(ayah, range.first), range.last) : ayah;
-            updateSurahAyahDisplay();
-            saveStateToStorage();
-        }
-
-        const where = (surah > 0 && ayah > 0)
-            ? `صفحة ${p} • ${SURAH_NAMES[surah - 1]} ${ayah}`
-            : `صفحة ${p}`;
-        showAndroidToast('تم حفظ التقدم — ' + where);
-    } catch (e) {
-        console.error('applyMushafFromNative failed', e);
+function openLinkedQuranApp() {
+    if (typeof Android === 'undefined' || !Android.launchQuranWithFloatingButton) {
+        showAndroidToast('هذه الميزة متاحة داخل التطبيق فقط');
+        return;
     }
+
+    const linked = Android.getSelectedQuranApp && Android.getSelectedQuranApp();
+    if (linked) {
+        Android.launchQuranWithFloatingButton(currentPage);
+        return;
+    }
+
+    if (!Android.getInstalledApps) {
+        Android.launchQuranWithFloatingButton(currentPage); // falls back to auto-detection
+        return;
+    }
+
+    let apps;
+    try {
+        apps = JSON.parse(Android.getInstalledApps());
+    } catch (e) {
+        apps = [];
+    }
+    if (!apps.length) {
+        showAndroidToast('لم يتم العثور على تطبيقات لربطها');
+        return;
+    }
+
+    const items = apps.map(a => ({ value: a.pkg, label: a.label }));
+    openPicker('اختر تطبيق المصحف لربطه', items, '', (pkg) => {
+        if (Android.setSelectedQuranApp) Android.setSelectedQuranApp(pkg);
+        if (elQuranAppSelect) elQuranAppSelect.value = pkg; // keep Settings in sync
+        Android.launchQuranWithFloatingButton(currentPage);
+    });
+}
+
+/**
+ * Called by MainActivity when the floating return button brings the user
+ * back from the linked Quran app. There is no way to read that app's own
+ * position, so this simply asks for the page reached; recordProgress() then
+ * makes it count exactly like a manual update on the home card.
+ */
+function promptSaveAfterExternalReading() {
+    const modal = document.getElementById('modal-save-progress');
+    const input = document.getElementById('input-save-progress-page');
+    const err = document.getElementById('save-progress-error-msg');
+    if (!modal || !input) return;
+    input.value = '';
+    if (err) err.style.display = 'none';
+    modal.classList.add('open');
+    setTimeout(() => input.focus(), 200);
 }
 
 // Load Persistent State
@@ -571,14 +588,35 @@ function setupEventListeners() {
         });
     }
 
-    // Floating Quran Button tap -> open the Quran app with the floating return button
+    // Floating Quran Button tap -> same link-or-launch flow as the المصحف tab
     if (elFloatingQuranBtn) {
-        elFloatingQuranBtn.addEventListener('click', () => {
-            if (typeof Android !== 'undefined' && Android.launchQuranWithFloatingButton) {
-                Android.launchQuranWithFloatingButton(currentPage);
-            } else {
-                showAndroidToast("هذه الميزة متاحة داخل التطبيق فقط");
+        elFloatingQuranBtn.addEventListener('click', openLinkedQuranApp);
+    }
+
+    // "أين توقفت؟" modal: shown by promptSaveAfterExternalReading() when the
+    // floating return button brings the user back from the Quran app.
+    const elSaveProgressModal = document.getElementById('modal-save-progress');
+    const elSaveProgressInput = document.getElementById('input-save-progress-page');
+    const elSaveProgressError = document.getElementById('save-progress-error-msg');
+    const elBtnCloseSaveProgress = document.getElementById('btn-close-save-progress-modal');
+    const elBtnConfirmSaveProgress = document.getElementById('btn-save-progress-confirm');
+
+    if (elBtnCloseSaveProgress) {
+        elBtnCloseSaveProgress.addEventListener('click', () => {
+            elSaveProgressModal.classList.remove('open');
+        });
+    }
+    if (elBtnConfirmSaveProgress) {
+        elBtnConfirmSaveProgress.addEventListener('click', () => {
+            const val = parseInt(elSaveProgressInput.value, 10);
+            if (isNaN(val) || val < 1 || val > 604) {
+                if (elSaveProgressError) elSaveProgressError.style.display = 'block';
+                return;
             }
+            if (elSaveProgressError) elSaveProgressError.style.display = 'none';
+            recordProgress(val);
+            elSaveProgressModal.classList.remove('open');
+            showAndroidToast(`تم حفظ التقدم — صفحة ${val}`);
         });
     }
 
