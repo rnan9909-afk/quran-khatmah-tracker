@@ -1,7 +1,7 @@
 {
-    "versionCode":  57,
-    "versionName":  "7.6",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v7.6/khatmati-7.6.apk",
-    "notes":  "• جديد في المصحف: تكبير وتصغير الخط — من زر «Tт» أعلى المصحف، أو بإصبعين على الصفحة، أو من إعدادات المصحف.\n• الحجم الأساسي يعرض الصفحة كما في المصحف المطبوع، وعند التكبير يظهر نص الصفحة نفسها بخط أكبر (حتى ٢٠٠٪) مع التمرير للأسفل.",
+    "versionCode":  58,
+    "versionName":  "7.7",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v7.7/khatmati-7.7.apk",
+    "notes":  "• زر العودة إلى ختمتك صار دائرة صغيرة أعلى الصفحة: اضغطها مرة لتظهر «العودة إلى ختمتك • صفحة …»، واضغط مرة ثانية لترجع لصفحتك.",
     "mandatory":  false
 }
