@@ -1,7 +1,7 @@
 {
-    "versionCode":  55,
-    "versionName":  "7.4",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v7.4/khatmati-7.4.apk",
-    "notes":  "• إصلاح: شريط المصحف العلوي نزل تحت شريط الحالة والكاميرا، وصار الشريط السفلي فوق أزرار الجوال.\n• أيقونات شريط الحالة (الساعة والبطارية) صارت واضحة في المظهر الصباحي والكريمي.",
+    "versionCode":  56,
+    "versionName":  "7.5",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v7.5/khatmati-7.5.apk",
+    "notes":  "• جديد في المصحف: زر «العودة إلى ختمتك» يظهر أعلى الصفحة متى ما كنت تقرأ في مكان آخر (مثل سورة الكهف يوم الجمعة)، وبضغطة واحدة يرجعك لصفحة ختمتك المحفوظة.",
     "mandatory":  false
 }
