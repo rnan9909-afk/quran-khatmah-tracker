@@ -1,7 +1,7 @@
 {
-    "versionCode":  58,
-    "versionName":  "7.7",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v7.7/khatmati-7.7.apk",
-    "notes":  "• زر العودة إلى ختمتك صار دائرة صغيرة أعلى الصفحة: اضغطها مرة لتظهر «العودة إلى ختمتك • صفحة …»، واضغط مرة ثانية لترجع لصفحتك.",
+    "versionCode":  59,
+    "versionName":  "7.8",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v7.8/khatmati-7.8.apk",
+    "notes":  "• جديد في المصحف: لما تقلّب الصفحات وتوصل لصفحة إتمام وردك اليوم، يطلع لك «🎉 أحسنت! حققت هدف اليوم» مع زر «احفظ» يحفظ إنجازك بضغطة.",
     "mandatory":  false
 }
