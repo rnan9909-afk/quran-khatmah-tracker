@@ -1,7 +1,7 @@
 {
-    "versionCode":  59,
-    "versionName":  "7.8",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v7.8/khatmati-7.8.apk",
-    "notes":  "• جديد في المصحف: لما تقلّب الصفحات وتوصل لصفحة إتمام وردك اليوم، يطلع لك «🎉 أحسنت! حققت هدف اليوم» مع زر «احفظ» يحفظ إنجازك بضغطة.",
+    "versionCode":  60,
+    "versionName":  "7.9",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v7.9/khatmati-7.9.apk",
+    "notes":  "• حذف زر «افتح المصحف على صفحتك» من الرئيسية — المصحف يُفتح من زر «المصحف» في الشريط السفلي.",
     "mandatory":  false
 }
