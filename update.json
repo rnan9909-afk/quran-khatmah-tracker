@@ -1,7 +1,7 @@
 {
-    "versionCode":  61,
-    "versionName":  "8.0",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v8.0/khatmati-8.0.apk",
-    "notes":  "• جديد في المصحف: «وضع التركيز» — زر ⛶ بجانب تكبير الخط، يُخفي الشريطين العلوي والسفلي وشريط الجوال ويبقى المصحف وحده بكامل الشاشة.\n• للخروج: الزر الصغير في الزاوية، أو زر الرجوع في الجوال.",
+    "versionCode":  62,
+    "versionName":  "8.1",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v8.1/khatmati-8.1.apk",
+    "notes":  "• خط المصحف صار أكبر وأوضح (نحو ١٤٪) والكلمات متقاربة مثل المصحف المطبوع، مع هوامش جانبية أصغر.\n• وضع التركيز صار ملء الشاشة فعلاً: الصفحة بلا إطار، والأسطر تمتد من أعلى الشاشة إلى أسفلها بدون فراغات.\n• زر الخروج من وضع التركيز انتقل للزاوية السفلية بجانب رقم الصفحة.",
     "mandatory":  false
 }
