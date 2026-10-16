@@ -1,7 +1,7 @@
 {
-    "versionCode":  60,
-    "versionName":  "7.9",
-    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v7.9/khatmati-7.9.apk",
-    "notes":  "• حذف زر «افتح المصحف على صفحتك» من الرئيسية — المصحف يُفتح من زر «المصحف» في الشريط السفلي.",
+    "versionCode":  61,
+    "versionName":  "8.0",
+    "apkUrl":  "https://github.com/rnan9909-afk/quran-khatmah-tracker/releases/download/v8.0/khatmati-8.0.apk",
+    "notes":  "• جديد في المصحف: «وضع التركيز» — زر ⛶ بجانب تكبير الخط، يُخفي الشريطين العلوي والسفلي وشريط الجوال ويبقى المصحف وحده بكامل الشاشة.\n• للخروج: الزر الصغير في الزاوية، أو زر الرجوع في الجوال.",
     "mandatory":  false
 }
